@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -18,7 +17,7 @@ import java.util.Map;
 @Slf4j
 public class FilmController {
 
-    private Map<Integer, Film> films = new HashMap<>();
+    private final Map<Integer, Film> films = new HashMap<>();
     private int lastId = 1;
 
     @PostMapping
@@ -45,7 +44,7 @@ public class FilmController {
 
         if (!films.containsKey(film.getId())) {
             log.info("Film с указанным id НЕ существует");
-            return new ResponseEntity<>(film, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(404).body(film);
         }
 
         if (validation(film)) {
