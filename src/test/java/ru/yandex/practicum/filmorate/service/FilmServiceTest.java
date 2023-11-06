@@ -53,39 +53,39 @@ public class FilmServiceTest {
 
     @Test
     public void getAllFilmsEmpty() {
-        Assertions.assertEquals(new ArrayList<>(), filmService.getAllFilms()
-                , "Неправильно возвращается пустой список фильмов");
+        Assertions.assertEquals(new ArrayList<>(), filmService.getAllFilms(),
+                "Неправильно возвращается пустой список фильмов");
     }
 
     @Test
     public void getAllFilmsFill() {
         fillFilms();
 
-        Assertions.assertEquals(20, filmService.getAllFilms().size()
-                , "Неправильно возвращается заполненный список фильмов");
+        Assertions.assertEquals(20, filmService.getAllFilms().size(),
+                "Неправильно возвращается заполненный список фильмов");
     }
 
     @Test
     public void getExistFilm() {
         filmService.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
 
-        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1
-                        , new HashSet<>())
-                , filmService.getFilm(1)
-                , "Новый фильм неправильно добавляется");
+        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1,
+                        new HashSet<>()),
+                filmService.getFilm(1),
+                "Новый фильм неправильно добавляется");
     }
 
     @Test
     public void getNonExistFilm() {
-        Assertions.assertThrows(UpdateNonExistObjectException.class
-                , () -> filmService.getFilm(1)
-                , "При добавлении фильма ожидалось UpdateNonExistObjectException");
+        Assertions.assertThrows(UpdateNonExistObjectException.class,
+                () -> filmService.getFilm(1),
+                "При добавлении фильма ожидалось UpdateNonExistObjectException");
     }
 
     @Test
     public void getEmptyMostLikedFilms() {
-        Assertions.assertEquals(new ArrayList<>(), filmService.getMostLikedFilms(10)
-                , "Неправильно возвращаеться пустой список лучших фильмов");
+        Assertions.assertEquals(new ArrayList<>(), filmService.getMostLikedFilms(10),
+                "Неправильно возвращаеться пустой список лучших фильмов");
     }
 
     @Test
@@ -105,39 +105,38 @@ public class FilmServiceTest {
 
         List<Film> mostLikedFilms = filmService.getMostLikedFilms(15);
 
-        Assertions.assertEquals(10, mostLikedFilms.get(0).getId()
-                , "Неправильно возвращаеться список лучших фильмов");
-        Assertions.assertEquals(9, mostLikedFilms.get(1).getId()
-                , "Неправильно возвращаеться список лучших фильмов");
-        Assertions.assertEquals(8, mostLikedFilms.get(2).getId()
-                , "Неправильно возвращаеться список лучших фильмов");
-        Assertions.assertEquals(7, mostLikedFilms.get(3).getId()
-                , "Неправильно возвращаеться список лучших фильмов");
-        Assertions.assertEquals(5, mostLikedFilms.get(4).getId()
-                , "Неправильно возвращаеться список лучших фильмов");
-        Assertions.assertEquals(6, mostLikedFilms.get(6).getId()
-                , "Неправильно возвращаеться список лучших фильмов");
-        Assertions.assertEquals(1, mostLikedFilms.get(7).getId()
-                , "Неправильно возвращаеться список лучших фильмов");
-        Assertions.assertEquals(16, mostLikedFilms.get(10).getId()
-                , "Неправильно возвращаеться список лучших фильмов");
+        Assertions.assertEquals(10, mostLikedFilms.get(0).getId(),
+                "Неправильно возвращаеться список лучших фильмов");
+        Assertions.assertEquals(9, mostLikedFilms.get(1).getId(),
+                "Неправильно возвращаеться список лучших фильмов");
+        Assertions.assertEquals(8, mostLikedFilms.get(2).getId(),
+                "Неправильно возвращаеться список лучших фильмов");
+        Assertions.assertEquals(7, mostLikedFilms.get(3).getId(),
+                "Неправильно возвращаеться список лучших фильмов");
+        Assertions.assertEquals(5, mostLikedFilms.get(4).getId(),
+                "Неправильно возвращаеться список лучших фильмов");
+        Assertions.assertEquals(6, mostLikedFilms.get(6).getId(),
+                "Неправильно возвращаеться список лучших фильмов");
+        Assertions.assertEquals(1, mostLikedFilms.get(7).getId(),
+                "Неправильно возвращаеться список лучших фильмов");
+        Assertions.assertEquals(16, mostLikedFilms.get(10).getId(),
+                "Неправильно возвращаеться список лучших фильмов");
     }
 
     @Test
     public void getOneMostLikedFilms() {
         fillFilms();
 
-        Assertions.assertEquals(1, filmService.getMostLikedFilms(1).size()
-                , "Неправильно возвращаеться список лучших фильмов при значинии в 1 фильм");
+        Assertions.assertEquals(1, filmService.getMostLikedFilms(1).size(),
+                "Неправильно возвращаеться список лучших фильмов при значинии в 1 фильм");
     }
 
     @Test
     public void getFiveMostLikedFilms() {
         fillFilms();
 
-        Assertions.assertEquals(5, filmService.getMostLikedFilms(5).size()
-                , "Неправильно возвращаеться список лучших фильмов при значинии в 5 фильмов");
-
+        Assertions.assertEquals(5, filmService.getMostLikedFilms(5).size(),
+                "Неправильно возвращаеться список лучших фильмов при значинии в 5 фильмов");
     }
 
     @Test
@@ -145,9 +144,9 @@ public class FilmServiceTest {
         filmService.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
 
         Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1
-                        , new HashSet<>())
-                , filmService.getFilm(1)
-                , "Первый созданный фильм неправильно добавляется");
+                        , new HashSet<>()),
+                filmService.getFilm(1),
+                "Первый созданный фильм неправильно добавляется");
     }
 
     @Test
@@ -155,30 +154,30 @@ public class FilmServiceTest {
         fillFilms();
         filmService.addFilm(createFilm("21", "21", 2000, 1, 21, 21));
 
-        Assertions.assertEquals(createFilm(21, "21", "21", 2000, 1, 21, 21
-                        , new HashSet<>())
-                , filmService.getFilm(21)
-                , "Новый фильм неправильно добавляется");
+        Assertions.assertEquals(createFilm(21, "21", "21", 2000, 1, 21, 21,
+                        new HashSet<>()),
+                filmService.getFilm(21),
+                "Новый фильм неправильно добавляется");
     }
 
     @Test
     public void addExistFilm() {
         fillFilms();
 
-        Assertions.assertThrows(AddExistObjectException.class
-                , () -> filmService.addFilm(createFilm(1, "1", "1"
-                        , 2000, 1, 1, 1))
-                , "при добавлнении фильма ожидалось AddExistObjectException");
+        Assertions.assertThrows(AddExistObjectException.class,
+                () -> filmService.addFilm(createFilm(1, "1", "1",
+                        2000, 1, 1, 1)),
+                "при добавлнении фильма ожидалось AddExistObjectException");
     }
 
     @Test
     public void addFilmWithoutOptionalParameters() {
         filmService.addFilm(createFilm("1", null, 2000, 1, 1, 1));
 
-        Assertions.assertEquals(createFilm(1, "1", "", 2000, 1, 1, 1
-                        , new HashSet<>())
-                , filmService.getFilm(1)
-                , "Необазятельные параметры фильма неправильно обрабатываются");
+        Assertions.assertEquals(createFilm(1, "1", "", 2000, 1, 1, 1,
+                        new HashSet<>()),
+                filmService.getFilm(1),
+                "Необазятельные параметры фильма неправильно обрабатываются");
     }
 
 
@@ -186,25 +185,25 @@ public class FilmServiceTest {
     public void updateExistFilm() {
         filmService.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
 
-        Assertions.assertEquals(createFilm(1, "2", "2", 2000, 2, 2, 2
-                        , new HashSet<>())
-                , filmService.updateFilm(createFilm(1, "2", "2", 2000, 2, 2, 2))
-                , "Фильм неправильно обновляется");
+        Assertions.assertEquals(createFilm(1, "2", "2", 2000, 2, 2, 2,
+                        new HashSet<>()),
+                filmService.updateFilm(createFilm(1, "2", "2", 2000, 2, 2, 2)),
+                "Фильм неправильно обновляется");
     }
 
     @Test
     public void updateNonExistFilm() {
-        Assertions.assertThrows(UpdateNonExistObjectException.class
-                , () -> filmService.updateFilm(createFilm("1", "1", 2000, 1, 1, 1))
-                , "При обновлении фильма ожидалось UpdateNonExistObjectException");
+        Assertions.assertThrows(UpdateNonExistObjectException.class,
+                () -> filmService.updateFilm(createFilm("1", "1", 2000, 1, 1, 1)),
+                "При обновлении фильма ожидалось UpdateNonExistObjectException");
     }
 
     @Test
     public void addLikeToFilm() {
         filmService.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
 
-        Assertions.assertTrue(filmService.addLikeToFilm(1, 1).getUserLikes().contains(1)
-                , "Неправильное добавление лайка к фильму");
+        Assertions.assertTrue(filmService.addLikeToFilm(1, 1).getUserLikes().contains(1),
+                "Неправильное добавление лайка к фильму");
     }
 
     @Test
@@ -212,33 +211,33 @@ public class FilmServiceTest {
         filmService.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
         filmService.addLikeToFilm(1, 1);
 
-        Assertions.assertThrows(IncorrectObjectModificationException.class
-                , () -> filmService.addLikeToFilm(1, 1)
-                , "При добавлении лайка к фильму ожидалось IncorrectObjectModificationException");
+        Assertions.assertThrows(IncorrectObjectModificationException.class,
+                () -> filmService.addLikeToFilm(1, 1),
+                "При добавлении лайка к фильму ожидалось IncorrectObjectModificationException");
     }
 
     @Test
     public void addLikeToNonExistFilm() {
-        Assertions.assertThrows(UpdateNonExistObjectException.class
-                , () -> filmService.addLikeToFilm(1, 1)
-                , "При добавлении лайка к фильму ожидалось UpdateNonExistObjectException");
+        Assertions.assertThrows(UpdateNonExistObjectException.class,
+                () -> filmService.addLikeToFilm(1, 1),
+                "При добавлении лайка к фильму ожидалось UpdateNonExistObjectException");
     }
 
     @Test
     public void deleteExistFilm() {
         filmService.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
 
-        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1
-                        , new HashSet<>())
-                , filmService.deleteFilm(1)
-                , "Фильм неправильно обновляется");
+        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1,
+                        new HashSet<>()),
+                filmService.deleteFilm(1),
+                "Фильм неправильно обновляется");
     }
 
     @Test
     public void deleteNonExistFilm() {
-        Assertions.assertThrows(UpdateNonExistObjectException.class
-                , () -> filmService.deleteFilm(1)
-                , "При удалении фильма ожидалось UpdateNonExistObjectException");
+        Assertions.assertThrows(UpdateNonExistObjectException.class,
+                () -> filmService.deleteFilm(1),
+                "При удалении фильма ожидалось UpdateNonExistObjectException");
     }
 
     @Test
@@ -246,23 +245,23 @@ public class FilmServiceTest {
         filmService.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
         filmService.addLikeToFilm(1, 1);
 
-        Assertions.assertFalse(filmService.deleteLikeToFilm(1, 1).getUserLikes().contains(1)
-                , "Неправильное удаление лайка у фильма");
+        Assertions.assertFalse(filmService.deleteLikeToFilm(1, 1).getUserLikes().contains(1),
+                "Неправильное удаление лайка у фильма");
     }
 
     @Test
     public void deleteNonExistLikeToFilm() {
         filmService.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
 
-        Assertions.assertThrows(UpdateNonExistObjectException.class
-                , () -> filmService.deleteLikeToFilm(1, 1)
-                , "При удалении лайка у фильма ожидалось UpdateNonExistObjectException");
+        Assertions.assertThrows(UpdateNonExistObjectException.class,
+                () -> filmService.deleteLikeToFilm(1, 1),
+                "При удалении лайка у фильма ожидалось UpdateNonExistObjectException");
     }
 
     @Test
     public void deleteLikeToNonExistFilm() {
-        Assertions.assertThrows(UpdateNonExistObjectException.class
-                , () -> filmService.addLikeToFilm(1, 1)
-                , "При удалении лайка у фильма ожидалось UpdateNonExistObjectException");
+        Assertions.assertThrows(UpdateNonExistObjectException.class,
+                () -> filmService.addLikeToFilm(1, 1),
+                "При удалении лайка у фильма ожидалось UpdateNonExistObjectException");
     }
 }

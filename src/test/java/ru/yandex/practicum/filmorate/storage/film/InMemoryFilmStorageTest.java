@@ -36,8 +36,8 @@ public class InMemoryFilmStorageTest {
         return film;
     }
 
-    public Film createFilm(int id, String name, String description, int year, int month, int day, int duration
-            , Set<Integer> userLikes) {
+    public Film createFilm(int id, String name, String description, int year, int month, int day, int duration,
+                           Set<Integer> userLikes) {
         Film film = createFilm(id, name, description, year, month, day, duration);
         film.setUserLikes(userLikes);
         return film;
@@ -51,33 +51,33 @@ public class InMemoryFilmStorageTest {
 
     @Test
     public void getAllFilmsEmpty() {
-        Assertions.assertEquals(new HashMap<>(), filmStorage.getAllFilms()
-                , "Возвращается непустой список фильмов");
+        Assertions.assertEquals(new HashMap<>(), filmStorage.getAllFilms(),
+                "Возвращается непустой список фильмов");
     }
 
     @Test
     public void getAllFilmsFill() {
         fillFilms();
 
-        Assertions.assertEquals(20, filmStorage.getAllFilms().size()
-                , "Возвращается неправильное количество фильмов");
+        Assertions.assertEquals(20, filmStorage.getAllFilms().size(),
+                "Возвращается неправильное количество фильмов");
     }
 
     @Test
     public void getExistFilm() {
         filmStorage.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
 
-        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1
-                        , new HashSet<>())
-                , filmStorage.getFilm(1)
-                , "Фильм с указанным id невозможно получить");
+        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1,
+                        new HashSet<>()),
+                filmStorage.getFilm(1),
+                "Фильм с указанным id невозможно получить");
     }
 
     @Test
     public void getNonExistFilm() {
-        Assertions.assertThrows(UpdateNonExistObjectException.class
-                , () -> filmStorage.getFilm(1)
-                , "При добавлении фильма ожидалось UpdateNonExistObjectException");
+        Assertions.assertThrows(UpdateNonExistObjectException.class,
+                () -> filmStorage.getFilm(1),
+                "При добавлении фильма ожидалось UpdateNonExistObjectException");
     }
 
 
@@ -85,10 +85,10 @@ public class InMemoryFilmStorageTest {
     public void addFirstFilm() {
         filmStorage.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
 
-        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1
-                        , new HashSet<>())
-                , filmStorage.getFilm(1)
-                , "Первый созданный фильм неправильно добавляется");
+        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1,
+                        new HashSet<>()),
+                filmStorage.getFilm(1),
+                "Первый созданный фильм неправильно добавляется");
     }
 
     @Test
@@ -96,30 +96,30 @@ public class InMemoryFilmStorageTest {
         fillFilms();
         filmStorage.addFilm(createFilm("21", "21", 2000, 1, 21, 21));
 
-        Assertions.assertEquals(createFilm(21, "21", "21", 2000, 1, 21, 21
-                        , new HashSet<>())
-                , filmStorage.getFilm(21)
-                , "Новый фильм неправильно добавляется");
+        Assertions.assertEquals(createFilm(21, "21", "21", 2000, 1, 21, 21,
+                        new HashSet<>()),
+                filmStorage.getFilm(21),
+                "Новый фильм неправильно добавляется");
     }
 
     @Test
     public void addExistFilm() {
         fillFilms();
 
-        Assertions.assertThrows(AddExistObjectException.class
-                , () -> filmStorage.addFilm(createFilm(1, "1", "1"
-                        , 2000, 1, 1, 1))
-                , "при добавлнении фильма ожидалось AddExistObjectException");
+        Assertions.assertThrows(AddExistObjectException.class,
+                () -> filmStorage.addFilm(createFilm(1, "1", "1",
+                        2000, 1, 1, 1)),
+                "при добавлнении фильма ожидалось AddExistObjectException");
     }
 
     @Test
     public void addFilmWithoutOptionalParameters() {
         filmStorage.addFilm(createFilm("1", null, 2000, 1, 1, 1));
 
-        Assertions.assertEquals(createFilm(1, "1", "", 2000, 1, 1, 1
-                        , new HashSet<>())
-                , filmStorage.getFilm(1)
-                , "Необазятельные параметры фильма неправильно обрабатываются");
+        Assertions.assertEquals(createFilm(1, "1", "", 2000, 1, 1, 1,
+                        new HashSet<>()),
+                filmStorage.getFilm(1),
+                "Необазятельные параметры фильма неправильно обрабатываются");
     }
 
 
@@ -127,33 +127,33 @@ public class InMemoryFilmStorageTest {
     public void updateExistFilm() {
         filmStorage.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
 
-        Assertions.assertEquals(createFilm(1, "2", "2", 2000, 2, 2, 2
-                        , new HashSet<>())
-                , filmStorage.updateFilm(createFilm(1, "2", "2", 2000, 2, 2, 2))
-                , "Фильм неправильно обновляется");
+        Assertions.assertEquals(createFilm(1, "2", "2", 2000, 2, 2, 2,
+                        new HashSet<>()),
+                filmStorage.updateFilm(createFilm(1, "2", "2", 2000, 2, 2, 2)),
+                "Фильм неправильно обновляется");
     }
 
     @Test
     public void updateNonExistFilm() {
-        Assertions.assertThrows(UpdateNonExistObjectException.class
-                , () -> filmStorage.updateFilm(createFilm("1", "1", 2000, 1, 1, 1))
-                , "При обновлении фильма ожидалось UpdateNonExistObjectException");
+        Assertions.assertThrows(UpdateNonExistObjectException.class,
+                () -> filmStorage.updateFilm(createFilm("1", "1", 2000, 1, 1, 1)),
+                "При обновлении фильма ожидалось UpdateNonExistObjectException");
     }
 
     @Test
     public void deleteExistFilm() {
         filmStorage.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
 
-        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1
-                        , new HashSet<>())
-                , filmStorage.deleteFilm(1)
-                , "Фильм неправильно обновляется");
+        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1,
+                        new HashSet<>()),
+                filmStorage.deleteFilm(1),
+                "Фильм неправильно обновляется");
     }
 
     @Test
     public void deleteNonExistFilm() {
-        Assertions.assertThrows(UpdateNonExistObjectException.class
-                , () -> filmStorage.deleteFilm(1)
-                , "При удалении фильма ожидалось UpdateNonExistObjectException");
+        Assertions.assertThrows(UpdateNonExistObjectException.class,
+                () -> filmStorage.deleteFilm(1),
+                "При удалении фильма ожидалось UpdateNonExistObjectException");
     }
 }

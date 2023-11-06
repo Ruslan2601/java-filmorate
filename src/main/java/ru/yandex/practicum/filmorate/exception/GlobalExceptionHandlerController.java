@@ -25,8 +25,8 @@ public class GlobalExceptionHandlerController {
             exceptionMessages.add(fieldError.getDefaultMessage());
         }
 
-        ExceptionHandlerResponse response = new ExceptionHandlerResponse("Ошибка при валидации объекта"
-                , exceptionMessages.toString());
+        ExceptionHandlerResponse response = new ExceptionHandlerResponse("Ошибка при валидации объекта",
+                exceptionMessages.toString());
 
         log.warn(response.toString());
         return ResponseEntity.badRequest().body(response);
@@ -35,32 +35,32 @@ public class GlobalExceptionHandlerController {
 
     @ExceptionHandler
     public ResponseEntity<ExceptionHandlerResponse> invalidRequest(HttpMessageNotReadableException exception) {
-        ExceptionHandlerResponse response = new ExceptionHandlerResponse("Запрос составлен неправильно"
-                , exception.getMessage());
+        ExceptionHandlerResponse response = new ExceptionHandlerResponse("Запрос составлен неправильно",
+                exception.getMessage());
         log.warn(response.toString());
         return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler
     public ResponseEntity<ExceptionHandlerResponse> addExistObject(AddExistObjectException exception) {
-        ExceptionHandlerResponse response = new ExceptionHandlerResponse("Данный объект уже существует"
-                , exception.getMessage());
+        ExceptionHandlerResponse response = new ExceptionHandlerResponse("Данный объект уже существует",
+                exception.getMessage());
         log.warn(response.toString());
         return ResponseEntity.internalServerError().body(response);
     }
 
     @ExceptionHandler
     public ResponseEntity<ExceptionHandlerResponse> updateNonExistObject(UpdateNonExistObjectException exception) {
-        ExceptionHandlerResponse response = new ExceptionHandlerResponse("Попытка доступа к несуществующему объекту"
-                , exception.getMessage());
+        ExceptionHandlerResponse response = new ExceptionHandlerResponse("Попытка доступа к несуществующему объекту",
+                exception.getMessage());
         log.warn(response.toString());
         return ResponseEntity.status(404).body(response);
     }
 
     @ExceptionHandler
     public ResponseEntity<ExceptionHandlerResponse> incorrectObjectModification(IncorrectObjectModificationException exception) {
-        ExceptionHandlerResponse response = new ExceptionHandlerResponse("Некорректное изменение объекта"
-                , exception.getMessage());
+        ExceptionHandlerResponse response = new ExceptionHandlerResponse("Некорректное изменение объекта",
+                exception.getMessage());
         log.warn(response.toString());
         return ResponseEntity.internalServerError().body(response);
     }
