@@ -38,8 +38,8 @@ public class FilmServiceTest {
         return film;
     }
 
-    public Film createFilm(int id, String name, String description, int year, int month, int day, int duration
-            , Set<Integer> userLikes) {
+    public Film createFilm(int id, String name, String description, int year, int month, int day, int duration,
+                           Set<Integer> userLikes) {
         Film film = createFilm(id, name, description, year, month, day, duration);
         film.setUserLikes(userLikes);
         return film;
@@ -143,8 +143,8 @@ public class FilmServiceTest {
     public void addFirstFilm() {
         filmService.addFilm(createFilm("1", "1", 2000, 1, 1, 1));
 
-        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1
-                        , new HashSet<>()),
+        Assertions.assertEquals(createFilm(1, "1", "1", 2000, 1, 1, 1,
+                        new HashSet<>()),
                 filmService.getFilm(1),
                 "Первый созданный фильм неправильно добавляется");
     }
