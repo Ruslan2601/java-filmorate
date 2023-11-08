@@ -101,9 +101,9 @@ public class FilmServiceTest {
         }
         filmService.getAllFilms().get(0).setUserLikes(Set.of(5, 10));
         filmService.getAllFilms().get(5).setUserLikes(Set.of(1, 16, 100));
-        filmService.getAllFilms().get(15).setUserLikes(Set.of(1));
+        filmService.getAllFilms().get(15).setUserLikes(Set.of(1, 8));
 
-        List<Film> mostLikedFilms = filmService.getMostLikedFilms(15);
+        List<Film> mostLikedFilms = filmService.getMostLikedFilms(10);
 
         Assertions.assertEquals(10, mostLikedFilms.get(0).getId(),
                 "Неправильно возвращаеться список лучших фильмов");
@@ -115,11 +115,15 @@ public class FilmServiceTest {
                 "Неправильно возвращаеться список лучших фильмов");
         Assertions.assertEquals(5, mostLikedFilms.get(4).getId(),
                 "Неправильно возвращаеться список лучших фильмов");
+        Assertions.assertEquals(4, mostLikedFilms.get(5).getId(),
+                "Неправильно возвращаеться список лучших фильмов");
         Assertions.assertEquals(6, mostLikedFilms.get(6).getId(),
                 "Неправильно возвращаеться список лучших фильмов");
         Assertions.assertEquals(1, mostLikedFilms.get(7).getId(),
                 "Неправильно возвращаеться список лучших фильмов");
-        Assertions.assertEquals(16, mostLikedFilms.get(10).getId(),
+        Assertions.assertEquals(3, mostLikedFilms.get(8).getId(),
+                "Неправильно возвращаеться список лучших фильмов");
+        Assertions.assertEquals(16, mostLikedFilms.get(9).getId(),
                 "Неправильно возвращаеться список лучших фильмов");
     }
 
