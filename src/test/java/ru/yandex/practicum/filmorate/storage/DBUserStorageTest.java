@@ -1,27 +1,40 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.storage;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.exception.exceptions.AddExistObjectException;
 import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.DBUserStorage;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
-public class InMemoryUserStorageTest {
-    public UserStorage userStorage;
+@JdbcTest
+public class DBUserStorageTest {
 
-    @BeforeEach
-    public void setUserStorage() {
-        this.userStorage = new InMemoryUserStorage();
+    private final JdbcTemplate jdbcTemplate;
+    private final DBUserStorage userStorage;
+
+    @Autowired
+    public DBUserStorageTest(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.userStorage = new DBUserStorage(jdbcTemplate);
     }
 
-    public User createUser(String email, String login, String name, int year, int month, int day) {
+    @BeforeEach
+    public void setFilmStorage() {
+        jdbcTemplate.update("ALTER TABLE users ALTER COLUMN user_id RESTART WITH 1;");
+    }
+
+    public User createUser(int id, String email, String login, String name, int year, int month, int day) {
         User user = new User();
+        user.setId(id);
         user.setEmail(email);
         user.setLogin(login);
         user.setName(name);
@@ -29,22 +42,26 @@ public class InMemoryUserStorageTest {
         return user;
     }
 
-    public User createUser(int id, String email, String login, String name, int year, int month, int day) {
-        User user = createUser(email, login, name, year, month, day);
-        user.setId(id);
-        return user;
+    public User standardUser() {
+        return createUser(1,
+                "e1@mail.ru",
+                "login1",
+                "name 1",
+                2000,
+                1,
+                1);
     }
 
-    public User createUser(int id, String email, String login, String name, int year, int month, int day,
-                           Set<Integer> friends) {
-        User user = createUser(id, email, login, name, year, month, day);
-        user.setFriends(friends);
+    public User standardUserNotNullFriends() {
+        User user = standardUser();
+        user.setFriends(new HashSet<>());
         return user;
     }
 
     public void fillUsers() {
         for (int i = 1; i <= 20; ++i) {
-            userStorage.addUser(createUser(i + "user@e.mail", i + "login", i + "name", 2000, 1, i));
+            userStorage.addUser(createUser(0, "e" + i + "@mail.ru", "login" + i,
+                    "name " + i, 2000, 1, i));
         }
     }
 
@@ -64,12 +81,9 @@ public class InMemoryUserStorageTest {
 
     @Test
     public void getExistUser() {
-        userStorage.addUser(createUser(1 + "user@e.mail", 1 + "login", 1 + "name",
-                2000, 1, 1));
+        userStorage.addUser(standardUser());
 
-        Assertions.assertEquals(createUser(1, 1 + "user@e.mail", 1 + "login", 1 + "name",
-                        2000, 1, 1, new HashSet<>()),
-                userStorage.getUser(1),
+        Assertions.assertEquals(standardUser(), userStorage.getUser(1),
                 "Пользователь с указанным id невозможно получить");
     }
 
@@ -80,28 +94,28 @@ public class InMemoryUserStorageTest {
                 "при добавлении пользователя ожидалось UpdateNonExistObjectException");
     }
 
-
     @Test
     public void addFirstUser() {
-        userStorage.addUser(createUser(1 + "user@e.mail", 1 + "login", 1 + "name",
-                2000, 1, 1));
 
-        Assertions.assertEquals(createUser(1, 1 + "user@e.mail", 1 + "login", 1 + "name",
-                        2000, 1, 1, new HashSet<>()),
-                userStorage.getUser(1),
+        Assertions.assertEquals(standardUserNotNullFriends(), userStorage.addUser(standardUser()),
+                "Первый созданный пользователь неправильно добавляется");
+        Assertions.assertEquals(standardUser(), userStorage.getUser(1),
                 "Первый созданный пользователь неправильно добавляется");
     }
 
     @Test
     public void addNewUser() {
         fillUsers();
+        User user = standardUser();
+        user.setId(0);
 
-        userStorage.addUser(createUser(21 + "user@e.mail", 21 + "login", 21 + "name",
-                2000, 1, 21));
+        Assertions.assertEquals(user, userStorage.addUser(user),
+                "Новый пользователь неправильно добавляется");
 
-        Assertions.assertEquals(createUser(21, 21 + "user@e.mail", 21 + "login", 21 + "name",
-                        2000, 1, 21, new HashSet<>()),
-                userStorage.getUser(21),
+        user.setId(21);
+        user.setFriends(null);
+
+        Assertions.assertEquals(user, userStorage.getUser(21),
                 "Новый пользователь неправильно добавляется");
     }
 
@@ -110,51 +124,47 @@ public class InMemoryUserStorageTest {
         fillUsers();
 
         Assertions.assertThrows(AddExistObjectException.class,
-                () -> userStorage.addUser(createUser(1, 1 + "user@e.mail", 1 + "login", 1 + "name",
-                        2000, 1, 1)),
+                () -> userStorage.addUser(standardUser()),
                 "При добавлнении пользователя ожидалось AddExistObjectException");
     }
 
     @Test
     public void addUserWithoutOptionalParameters() {
-        userStorage.addUser(createUser(1 + "user@e.mail", 1 + "login", null,
-                2000, 1, 1));
+        User user = standardUserNotNullFriends();
+        user.setName(null);
 
-        Assertions.assertEquals(createUser(1, 1 + "user@e.mail", 1 + "login", 1 + "login",
-                        2000, 1, 1, new HashSet<>()),
-                userStorage.getUser(1),
+        Assertions.assertEquals(user, userStorage.addUser(user),
+                "Необазятельные параметры пользователя неправильно обрабатываются");
+
+        user = standardUser();
+        user.setName(user.getLogin());
+
+        Assertions.assertEquals(user, userStorage.getUser(1),
                 "Необазятельные параметры пользователя неправильно обрабатываются");
     }
 
-
     @Test
     public void updateExistUser() {
-        userStorage.addUser(createUser(1 + "user@e.mail", 1 + "login", 1 + "name",
-                2000, 1, 1));
+        userStorage.addUser(standardUser());
+        User user = createUser(1, "e" + 2 + "@mail.ru", "login" + 2,
+                "name " + 2, 2000, 1, 2);
 
-        Assertions.assertEquals(createUser(1, 2 + "user@e.mail", 2 + "login", 2 + "name",
-                        2000, 1, 2, new HashSet<>()),
-                userStorage.updateUser(createUser(1, 2 + "user@e.mail", 2 + "login", 2 + "name",
-                        2000, 1, 2)),
+        Assertions.assertEquals(user, userStorage.updateUser(user),
                 "Пользователь неправильно обновляется");
     }
 
     @Test
     public void updateNonExistUser() {
         Assertions.assertThrows(UpdateNonExistObjectException.class,
-                () -> userStorage.updateUser(createUser(1, 1 + "user@e.mail", 1 + "login",
-                        1 + "name", 2000, 1, 1)),
+                () -> userStorage.updateUser(standardUser()),
                 "При обновлении пользователя ожидалось UpdateNonExistObjectException");
     }
 
     @Test
     public void deleteExistUser() {
-        userStorage.addUser(createUser(1, 1 + "user@e.mail", 1 + "login", 1 + "name",
-                2000, 1, 1));
+        userStorage.addUser(standardUser());
 
-        Assertions.assertEquals(createUser(1, 1 + "user@e.mail", 1 + "login", 1 + "name",
-                        2000, 1, 1, new HashSet<>()),
-                userStorage.deleteUser(1),
+        Assertions.assertEquals(standardUser(), userStorage.deleteUser(1),
                 "Пользователь неправильно удаляется");
     }
 
