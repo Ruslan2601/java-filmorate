@@ -45,6 +45,7 @@ public class DBUserStorage implements UserStorage {
     @Override
     public User addUser(User user) {
         checkNonContainsUser(user.getId());
+        checkAddDuplicateUser(user);
 
         fillingOptionalParameters(user);
         String sqlQuery = "INSERT INTO users (email, login, name, birthday)" +
@@ -132,5 +133,21 @@ public class DBUserStorage implements UserStorage {
         }
 
         return user.get(0);
+    }
+
+    private void checkAddDuplicateUser(User user) {
+        String sqlQuery = "SELECT * FROM users WHERE email = ? OR login = ?;";
+        List<User> result = jdbcTemplate.query(sqlQuery, DBUserStorage::createUser, user.getEmail(), user.getLogin());
+
+        if (result.size() != 0) {
+            if (user.getEmail().equals(result.get(0).getEmail()) && user.getLogin().equals(result.get(0).getLogin())) {
+                throw new AddExistObjectException("Этот email и login уже заняты email = " + user.getEmail() +
+                        ", login = " + user.getLogin());
+            }
+            if (user.getEmail().equals(result.get(0).getEmail())) {
+                throw new AddExistObjectException("Этот email уже занят email = " + user.getEmail());
+            }
+            throw new AddExistObjectException("Этот login уже занят login = " + user.getLogin());
+        }
     }
 }

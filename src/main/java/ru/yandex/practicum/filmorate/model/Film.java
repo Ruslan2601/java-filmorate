@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
 import ru.yandex.practicum.filmorate.validation.DateNonBefore;
+import ru.yandex.practicum.filmorate.validation.CorrectGenresId;
+import ru.yandex.practicum.filmorate.validation.CorrectMpaId;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -17,12 +19,15 @@ public class Film {
     private String name;
     @Size(max = 200, message = "Длина описания превышает 200 симловов")
     private String description;
+    @NotNull(message = "Дата не должна быть null")
     @DateNonBefore
     private LocalDate releaseDate;
     @Positive(message = "Длительность фильма не положительна")
     private int duration;
     @NotNull(message = "mpa фильма не должно быть null")
+    @CorrectMpaId
     private Mpa mpa;
+    @CorrectGenresId
     private Set<Genre> genres;
     private Set<Integer> userLikes;
 }

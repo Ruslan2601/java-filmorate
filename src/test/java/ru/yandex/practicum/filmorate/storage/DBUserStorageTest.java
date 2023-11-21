@@ -60,7 +60,7 @@ public class DBUserStorageTest {
 
     public void fillUsers() {
         for (int i = 1; i <= 20; ++i) {
-            userStorage.addUser(createUser(0, "e" + i + "@mail.ru", "login" + i,
+            userStorage.addUser(createUser(0, "em" + i + "@mail.ru", "loginn" + i,
                     "name " + i, 2000, 1, i));
         }
     }
@@ -141,6 +141,15 @@ public class DBUserStorageTest {
 
         Assertions.assertEquals(user, userStorage.getUser(1),
                 "Необазятельные параметры пользователя неправильно обрабатываются");
+    }
+
+    @Test
+    public void addDuplicateUser() {
+        userStorage.addUser(standardUser());
+
+        Assertions.assertThrows(AddExistObjectException.class,
+                () -> userStorage.addUser(standardUser()),
+                "При добавлении дубликата пользователя ожидалось AddExistObjectException");
     }
 
     @Test

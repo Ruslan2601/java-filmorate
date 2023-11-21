@@ -66,7 +66,7 @@ public class DBFilmStorageTest {
 
     public void fillFilms() {
         for (int i = 1; i <= 20; ++i) {
-            filmStorage.addFilm(createFilm(0, "name " + i, "description " + i, 2000, 1, i,
+            filmStorage.addFilm(createFilm(0, "name +" + i, "description " + i, 2000, 1, i,
                     100 + i, new Mpa(1, "")));
         }
     }
@@ -147,6 +147,15 @@ public class DBFilmStorageTest {
 
         Assertions.assertEquals(film, filmStorage.getFilm(1),
                 "Необазятельные параметры фильма неправильно обрабатываются");
+    }
+
+    @Test
+    public void addDuplicateFilm() {
+        filmStorage.addFilm(standardFilm());
+
+        Assertions.assertThrows(AddExistObjectException.class,
+                () -> filmStorage.addFilm(standardFilm()),
+                "При добавлении дубликата фильма ожидалось AddExistObjectException");
     }
 
     @Test

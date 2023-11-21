@@ -12,6 +12,7 @@ import java.util.Set;
 @Data
 public class User {
     private int id;
+    @NotBlank(message = "email пользователя долден быть не пустой и не null")
     @Email(message = "Не правильный email")
     private String email;
     @NotBlank(message = "Логин пустой или null")

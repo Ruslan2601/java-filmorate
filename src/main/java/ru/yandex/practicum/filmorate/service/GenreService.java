@@ -12,7 +12,7 @@ import java.util.List;
 @Component
 public class GenreService {
 
-    private GenreStorage genreStorage;
+    private final GenreStorage genreStorage;
 
     @Autowired
     public GenreService(@Qualifier("dBGenreStorage") GenreStorage genreStorage) {
