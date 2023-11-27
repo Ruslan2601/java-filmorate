@@ -47,3 +47,4 @@ db/*
 /mvnw
 /mvnw.cmd
 /.mvn/
+/db/

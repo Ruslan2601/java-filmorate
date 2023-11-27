@@ -1,2 +1,2 @@
 # java-filmorate
-Template repository for Filmorate project.
+![База данный проекта](src/main/resources/PUBLIC.png)
