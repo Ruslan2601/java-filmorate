@@ -44,4 +44,11 @@ public class DBLikesStorage {
         String sqlQuery = "DELETE FROM likes WHERE film_id = ?;";
         jdbcTemplate.update(sqlQuery, filmId);
     }
+
+    public Set<Integer> getLikesFilm(int userId) {
+        String sqlQuery = "SELECT film_id FROM likes WHERE user_id = ?;";
+        return new HashSet<>(jdbcTemplate.query(sqlQuery,
+                (resultSet, rowNum) -> resultSet.getInt("film_id"),
+                userId));
+    }
 }
