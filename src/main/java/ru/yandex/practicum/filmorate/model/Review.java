@@ -13,9 +13,7 @@ public class Review {
     private String content;
     @NotNull(message = "Отзыв должен быть положительный(true) или отрицательный(false)")
     private boolean isPositive;
-    @Positive(message = "id пользовителя должен быть положительным числом")
     private int userId;
-    @Positive(message = "id фильма должен быть положительным числом")
     private int filmId;
     private int useful;
 }
