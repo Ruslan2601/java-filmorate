@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -73,5 +74,10 @@ public class InMemoryUserStorage implements UserStorage {
         if (!users.containsKey(userId)) {
             throw new UpdateNonExistObjectException("User с указанным id = " + userId + " не существует");
         }
+    }
+
+    @Override
+    public Map<Integer, List<Integer>> getUsersLikes(int userId) {
+        return null;
     }
 }
