@@ -80,9 +80,4 @@ public class InMemoryUserStorage implements UserStorage {
             throw new UpdateNonExistObjectException("User с указанным id = " + userId + " не существует");
         }
     }
-
-    @Override
-    public Map<Integer, List<Integer>> getUsersLikes(int userId) {
-        return null;
-    }
 }
