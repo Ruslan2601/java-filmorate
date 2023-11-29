@@ -54,6 +54,11 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
+    @Override
+    public Map<Integer, List<Integer>> getUsersLikes(int userId) {
+        return null;
+    }
+
     private User fillingOptionalParameters(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
