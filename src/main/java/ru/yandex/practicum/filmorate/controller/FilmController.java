@@ -62,4 +62,10 @@ public class FilmController {
         log.info("Получен DELETE запрос на удаление лайка фильму");
         return ResponseEntity.ok(filmService.deleteLikeToFilm(filmId, userId));
     }
+
+    @GetMapping("/common")
+    public ResponseEntity<List<Film>> getSameFilms(@RequestParam int userId, @RequestParam int friendId) {
+        log.info("Получен GET запрос на получение общих фильмов с другом");
+        return ResponseEntity.ok(filmService.getCommonFriendFilms(userId, friendId));
+    }
 }
