@@ -119,6 +119,9 @@ public class DBFilmStorage implements FilmStorage {
         if (film.getGenres() == null) {
             film.setGenres(new HashSet<>());
         }
+        if (film.getDirectors() == null) {
+            film.setDirectors(new HashSet<>());
+        }
     }
 
     private void checkNonContainsFilm(int filmId) {
