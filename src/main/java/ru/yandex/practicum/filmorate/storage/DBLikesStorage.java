@@ -52,7 +52,7 @@ public class DBLikesStorage {
                 userId));
     }
 
-    public Map<Integer, List<Integer>> getUsersLikes(int userId) {
+    public Map<Integer, List<Integer>> getUsersLikes() {
         String sqlQuery = "select user_id, film_id from likes;";
         Map<Integer, List<Integer>> result = new HashMap<>();
         jdbcTemplate.query(sqlQuery, (ResultSet rs) -> {
