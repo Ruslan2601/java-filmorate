@@ -6,8 +6,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.genre.DBGenreStorage;
 
-import java.util.HashSet;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component("dBFilmGenreStorage")
 public class DBFilmGenreStorage {
@@ -23,7 +25,9 @@ public class DBFilmGenreStorage {
         String sqlQuery = "SELECT g.genre_id, g.name FROM film_genres AS fg " +
                 "JOIN genres AS g ON fg.genre_id = g.genre_id " +
                 "WHERE fg.film_id = ?;";
-        return new HashSet<>(jdbcTemplate.query(sqlQuery, DBGenreStorage::createGenre, filmId));
+        return jdbcTemplate.query(sqlQuery, DBGenreStorage::createGenre, filmId).stream()
+                .sorted(Comparator.comparingInt(Genre::getId))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public void addFilmGenre(int filmId, int genreId) {
