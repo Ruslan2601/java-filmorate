@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.model.enumerations.Operation;
 
 @Data
 public class Event {
-    private int id;
+    private int eventId;
     private long timestamp;
     private int userId;
     private EventType eventType;
