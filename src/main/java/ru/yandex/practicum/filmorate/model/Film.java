@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.validation.DateNonBefore;
 import ru.yandex.practicum.filmorate.validation.CorrectGenresId;
 import ru.yandex.practicum.filmorate.validation.CorrectMpaId;
+import ru.yandex.practicum.filmorate.validation.DateNonBefore;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -30,4 +30,5 @@ public class Film {
     @CorrectGenresId
     private Set<Genre> genres;
     private Set<Integer> userLikes;
+    private Set<Director> directors;
 }

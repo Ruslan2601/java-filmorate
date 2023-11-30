@@ -49,8 +49,14 @@ CREATE TABLE IF NOT EXISTS reviews (
     content VARCHAR(255) NOT NULL,
     is_positive BOOLEAN NOT NULL,
     user_id INTEGER NOT NULL REFERENCES users (user_id),
-    film_id INTEGER NOT NULL REFERENCES films (film_id),
-    useful INTEGER NOT NULL
+    film_id INTEGER NOT NULL REFERENCES films (film_id)
+);
+
+CREATE TABLE IF NOT EXISTS review_user_likes (
+    review_id INTEGER REFERENCES reviews (review_id),
+    user_id INTEGER REFERENCES users (user_id),
+    is_positive BOOLEAN NOT NULL,
+    PRIMARY KEY (review_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS event_types (
