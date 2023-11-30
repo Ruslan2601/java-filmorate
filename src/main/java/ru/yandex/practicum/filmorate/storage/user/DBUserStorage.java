@@ -95,22 +95,6 @@ public class DBUserStorage implements UserStorage {
         return user;
     }
 
-    @Override
-    public Map<Integer, List<Integer>> getUsersLikes(int userId) {
-        checkContainsUser(userId);
-        String sqlQuery = "select user_id, film_id from likes;";
-        Map<Integer, List<Integer>> result = new HashMap<>();
-        jdbcTemplate.query(sqlQuery, (ResultSet rs) -> {
-            int thisUserId = rs.getInt("user_id");
-            int thisFilmId = rs.getInt("film_id");
-            if (!result.containsKey(thisUserId)) {
-                result.put(thisUserId, new ArrayList<>());
-            }
-            result.get(thisUserId).add(thisFilmId);
-        });
-        return result;
-    }
-
     public static User createUser(ResultSet resultSet, int rowNum) throws SQLException {
         User user = new User();
         user.setId(resultSet.getInt("user_id"));

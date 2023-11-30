@@ -140,7 +140,7 @@ public class UserService {
     }
 
     public List<Film> getRecommendations(int userId) {
-        Map<Integer, List<Integer>> allUsers = userStorage.getUsersLikes(userId);
+        Map<Integer, List<Integer>> allUsers = likesStorage.getUsersLikes(userId);
         List<Integer> userList = allUsers.getOrDefault(userId, Collections.emptyList());
 
         if (userList.isEmpty()) {
