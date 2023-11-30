@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.exception.exceptions.AddExistObjectException;
 import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.DBFilmStorage;
@@ -43,6 +44,7 @@ public class DBFilmStorageTest {
         film.setMpa(mpa);
         film.setGenres(new HashSet<>());
         film.setUserLikes(new HashSet<>());
+        film.setDirectors(null);
         return film;
     }
 
@@ -61,6 +63,7 @@ public class DBFilmStorageTest {
         Film film = standardFilm();
         film.setGenres(null);
         film.setUserLikes(null);
+        film.setDirectors(null);
         return film;
     }
 
@@ -102,7 +105,9 @@ public class DBFilmStorageTest {
 
     @Test
     public void addFirstFilm() {
-        Assertions.assertEquals(standardFilm(), filmStorage.addFilm(standardFilm()),
+        Film film = standardFilm();
+        film.setDirectors(null);
+        Assertions.assertEquals(film, filmStorage.addFilm(film),
                 "Первый созданный фильм неправильно добавляется");
         Assertions.assertEquals(standardGetFilm(), filmStorage.getFilm(1),
                 "Первый созданный фильм неправильно добавляется");
@@ -120,6 +125,7 @@ public class DBFilmStorageTest {
         film.setId(21);
         film.setGenres(null);
         film.setUserLikes(null);
+        film.setDirectors(null);
 
         Assertions.assertEquals(film, filmStorage.getFilm(21),
                 "Новый фильм неправильно добавляется");
