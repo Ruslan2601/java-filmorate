@@ -98,6 +98,33 @@ public class DBFilmStorage implements FilmStorage {
         return film;
     }
 
+    @Override
+    public List<Film> searchFilm(String query, boolean directors, boolean title) {
+        String sqlDirectorsTittle = "SELECT f.* " +
+                "FROM films f " +
+                "LEFT JOIN film_directors fd ON fd.film_id = f.film_id " +
+                "LEFT JOIN directors d ON d.director_id = fd.director_id " +
+                "WHERE f.name LIKE '%" + query + "%' OR d.name LIKE '%" + query + "%'";
+        String sqlDirectors = "SELECT f.* " +
+                "FROM films f " +
+                "LEFT JOIN film_directors fd ON fd.film_id = f.film_id " +
+                "LEFT JOIN directors d ON d.director_id = fd.director_id " +
+                "WHERE d.name LIKE '%" + query + "%';";
+        String sqlTittle = "SELECT f.* " +
+                "FROM films f " +
+                "WHERE f.name LIKE '%" + query + "%';";
+        if (directors && title) {
+            return jdbcTemplate.query(sqlDirectorsTittle, DBFilmStorage::createFilm);
+        }
+        if (directors) {
+            return jdbcTemplate.query(sqlDirectors, DBFilmStorage::createFilm);
+        }
+        if (title) {
+            return jdbcTemplate.query(sqlTittle, DBFilmStorage::createFilm);
+        }
+        return Collections.emptyList();
+    }
+
     public static Film createFilm(ResultSet resultSet, int rowNum) throws SQLException {
         Film film = new Film();
         film.setId(resultSet.getInt("film_id"));

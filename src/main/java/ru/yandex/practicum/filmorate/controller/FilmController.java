@@ -39,6 +39,19 @@ public class FilmController {
         return ResponseEntity.ok(filmService.getMostLikedFilms(count));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Film>> getSearch(
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "by", required = false) String by
+    ) {
+        log.debug("Возвращаем фильмы с поисковым запросом: {}", query);
+        if (query == null || by == null) {
+            return ResponseEntity.ok(filmService.getMostLikedFilms(filmService.getAllFilms().size()));
+        } else {
+            return ResponseEntity.ok(filmService.searchFilms(query, by));
+        }
+    }
+
     @PostMapping
     public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
         log.info("Получен POST запрос на добавление нового фильма");
