@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.DBFilmDirectorStorage;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+
 import java.util.List;
 
 @Component
@@ -29,9 +30,17 @@ public class DirectorService {
         return directorStorage.getDirector(directorId);
     }
 
-    public Director addDirector(Director director){ return directorStorage.addDirector(director);};
+    public Director addDirector(Director director) {
+        return directorStorage.addDirector(director);
+    }
 
-    public Director updateDirector(Director director){ return directorStorage.updateDirector(director);};
+    ;
+
+    public Director updateDirector(Director director) {
+        return directorStorage.updateDirector(director);
+    }
+
+    ;
 
     public Director deleteDirector(int directorId) {
         List<Film> films = filmDirectorStorage.getDirectorFilms(directorId);
@@ -39,6 +48,8 @@ public class DirectorService {
             filmDirectorStorage.deleteFilmDirector(film.getId(), directorId);
         });
         return directorStorage.deleteDirector(directorId);
-    };
+    }
+
+    ;
 
 }
