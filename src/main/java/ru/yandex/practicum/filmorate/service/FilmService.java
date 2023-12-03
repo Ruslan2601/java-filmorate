@@ -203,8 +203,7 @@ public class FilmService {
         boolean isDirector = by.contains("director");
         boolean isTitle = by.contains("title");
         return filmStorage.searchFilm(query, isDirector, isTitle).stream()
-                    .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
-                    .sorted((f1, f2) -> f2.getUserLikes().size() - f1.getUserLikes().size())
-                    .collect(Collectors.toList());
+                .peek(film -> film.setMpa(mpaStorage.getMpa(film.getMpa().getId())))
+                .collect(Collectors.toList());
     }
 }
