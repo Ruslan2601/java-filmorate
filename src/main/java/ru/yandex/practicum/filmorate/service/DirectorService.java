@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -17,7 +16,7 @@ public class DirectorService {
     private final DBFilmDirectorStorage filmDirectorStorage;
 
     @Autowired
-    public DirectorService(@Qualifier("dBDirectorStorage") DirectorStorage directorStorage, DBFilmDirectorStorage filmDirectorStorage) {
+    public DirectorService(DirectorStorage directorStorage, DBFilmDirectorStorage filmDirectorStorage) {
         this.directorStorage = directorStorage;
         this.filmDirectorStorage = filmDirectorStorage;
     }
