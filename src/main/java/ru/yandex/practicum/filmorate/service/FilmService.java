@@ -229,8 +229,7 @@ public class FilmService {
             film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
             film.setUserLikes(likesStorage.getLikes(film.getId()));
             film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
-        })
-                .collect(Collectors.toList());
+        }).collect(Collectors.toList());
     }
 
     private Film collectFilm(int filmId) {
