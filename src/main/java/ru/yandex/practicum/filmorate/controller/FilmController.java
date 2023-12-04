@@ -47,6 +47,12 @@ public class FilmController {
 
     }
 
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<List<Film>> getDirectorFilms(@PathVariable int directorId, @RequestParam(defaultValue = "year") String sortBy) {
+        log.info("Получен GET запрос на получение списка фильмов режиссера");
+        return ResponseEntity.ok(filmService.getDirectorFilms(directorId, sortBy));
+    }
+
     @PostMapping
     public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
         log.info("Получен POST запрос на добавление нового фильма");
