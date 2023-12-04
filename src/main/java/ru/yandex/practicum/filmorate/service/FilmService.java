@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.exceptions.IncorrectObjectModificationException;
 import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectException;
@@ -40,7 +39,8 @@ public class FilmService {
                        DBFilmGenreStorage filmGenreStorage,
                        DBFilmDirectorStorage filmDirectorStorage,
                        DBLikesStorage likesStorage,
-                       @Qualifier("dBUserStorage") UserStorage userStorage, EventService eventService) {
+                       UserStorage userStorage,
+                       EventService eventService) {
         this.filmStorage = filmStorage;
         this.mpaStorage = mpaStorage;
         this.directorStorage = directorStorage;

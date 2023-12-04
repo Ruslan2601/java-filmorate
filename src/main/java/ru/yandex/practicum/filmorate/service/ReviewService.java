@@ -28,7 +28,8 @@ public class ReviewService {
     public ReviewService(@Qualifier("dBReviewStorage") DBReviewStorage reviewStorage,
                          DBReviewUserLikesStorage reviewUserLikesStorage,
                          @Qualifier("dBUserStorage") UserStorage userStorage,
-                         @Qualifier("dBFilmStorage") FilmStorage filmStorage, EventService eventService) {
+                         @Qualifier("dBFilmStorage") FilmStorage filmStorage,
+                         EventService eventService) {
         this.reviewStorage = reviewStorage;
         this.reviewUserLikesStorage = reviewUserLikesStorage;
         this.userStorage = userStorage;
@@ -48,7 +49,7 @@ public class ReviewService {
         userStorage.getUser(review.getUserId());
         filmStorage.getFilm(review.getFilmId());
         Review createdReview = reviewStorage.addReview(review);
-        eventService.crete(review.getUserId(), review.getReviewId(), EventType.REVIEW, Operation.ADD);
+        eventService.crete(createdReview.getUserId(), createdReview.getReviewId(), EventType.REVIEW, Operation.ADD);
         return createdReview;
     }
 
