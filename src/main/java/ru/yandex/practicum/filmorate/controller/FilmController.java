@@ -34,9 +34,17 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<List<Film>> getMostLikedFilms(@RequestParam(defaultValue = "10") int count) {
-        log.info("Получен GET запрос на получение лучших фильмов");
-        return ResponseEntity.ok(filmService.getMostLikedFilms(count));
+    public ResponseEntity<List<Film>> getMostLikedFilms(@RequestParam(defaultValue = "10") int count,
+                                                        @RequestParam(value = "genreId", defaultValue = "0", required = false) int genreId,
+                                                        @RequestParam(value = "year", defaultValue = "0", required = false) int year) {
+        if (genreId == 0 & year == 0) {
+            log.info("Получен GET запрос на получение лучших фильмов");
+            return ResponseEntity.ok(filmService.getMostLikedFilms(count));
+        } else {
+            log.info("Получен GET запрос на получение самых популярных фильмов по жанру и году");
+            return ResponseEntity.ok(filmService.getMostLikedFilmsByGenreAndYear(count, genreId, year));
+        }
+
     }
 
     @PostMapping
