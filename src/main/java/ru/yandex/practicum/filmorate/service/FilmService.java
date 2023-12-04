@@ -228,6 +228,7 @@ public class FilmService {
             film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
             film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
             film.setUserLikes(likesStorage.getLikes(film.getId()));
+            film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
         })
                 .collect(Collectors.toList());
     }
