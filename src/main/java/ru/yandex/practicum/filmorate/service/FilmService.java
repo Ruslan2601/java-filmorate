@@ -1,15 +1,17 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.exceptions.IncorrectObjectModificationException;
 import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.DBFilmDirectorStorage;
 import ru.yandex.practicum.filmorate.storage.DBFilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.DBLikesStorage;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -23,19 +25,25 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final MpaStorage mpaStorage;
+    private final DirectorStorage directorStorage;
     private final DBFilmGenreStorage filmGenreStorage;
+    private final DBFilmDirectorStorage filmDirectorStorage;
     private final DBLikesStorage likesStorage;
     private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(@Qualifier("dBFilmStorage") FilmStorage filmStorage,
-                       @Qualifier("dBMpaStorage") MpaStorage mpaStorage,
+    public FilmService(FilmStorage filmStorage,
+                       MpaStorage mpaStorage,
+                       DirectorStorage directorStorage,
                        DBFilmGenreStorage filmGenreStorage,
+                       DBFilmDirectorStorage filmDirectorStorage,
                        DBLikesStorage likesStorage,
-                       @Qualifier("dBUserStorage") UserStorage userStorage) {
+                       UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.mpaStorage = mpaStorage;
+        this.directorStorage = directorStorage;
         this.filmGenreStorage = filmGenreStorage;
+        this.filmDirectorStorage = filmDirectorStorage;
         this.likesStorage = likesStorage;
         this.userStorage = userStorage;
     }
@@ -47,6 +55,7 @@ public class FilmService {
         for (Film film : films) {
             film.setMpa(mpa.get(film.getMpa().getId()));
             film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
+            film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
             film.setUserLikes(likesStorage.getLikes(film.getId()));
         }
 
@@ -89,11 +98,49 @@ public class FilmService {
         return mostLikedFilms;
     }
 
+    public List<Film> getDirectorFilms(int directorId, String sortBy) {
+        directorStorage.checkContainsDirector(directorId);
+
+        if (sortBy.equals("likes")) {
+            Collection<Film> films = filmDirectorStorage.getDirectorFilms(directorId);
+
+            return films.stream()
+                    .sorted((f1, f2) -> {
+                        if (f2.getUserLikes() != null && f1.getUserLikes() != null) {
+                            return f1.getUserLikes().size() - f2.getUserLikes().size();
+                        }
+
+                        return f1.getId() - f2.getId();
+                    })
+                    .peek(film -> film.setMpa(mpaStorage.getMpa(film.getMpa().getId())))
+                    .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
+                    .peek(film -> film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId())))
+                    .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
+                    .collect(Collectors.toList());
+        } else {
+            List<Film> films = filmDirectorStorage.getDirectorFilms(directorId);
+            Map<Integer, Mpa> mpa = mpaStorage.getAllMpa();
+
+            for (Film film : films) {
+                film.setMpa(mpa.get(film.getMpa().getId()));
+                film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
+                film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
+                film.setUserLikes(likesStorage.getLikes(film.getId()));
+            }
+
+            return films;
+        }
+    }
+
     public Film addFilm(Film film) {
         filmStorage.addFilm(film);
 
         for (Genre genre : film.getGenres()) {
             filmGenreStorage.addFilmGenre(film.getId(), genre.getId());
+        }
+
+        for (Director director : film.getDirectors()) {
+            filmDirectorStorage.addFilmDirector(film.getId(), director.getId());
         }
 
         for (int likes : film.getUserLikes()) {
@@ -102,6 +149,8 @@ public class FilmService {
 
         film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
         film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
+        film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
+
         return film;
     }
 
@@ -114,6 +163,11 @@ public class FilmService {
             filmGenreStorage.addFilmGenre(film.getId(), genre.getId());
         }
 
+        filmDirectorStorage.deleteFilmDirectors(oldFilmVersion.getId());
+        for (Director director : film.getDirectors()) {
+            filmDirectorStorage.addFilmDirector(film.getId(), director.getId());
+        }
+
         likesStorage.deleteFilmLikes(oldFilmVersion.getId());
         for (int likes : film.getUserLikes()) {
             likesStorage.addLike(likes, film.getId());
@@ -121,6 +175,8 @@ public class FilmService {
 
         film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
         film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
+        film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
+
         return film;
     }
 
@@ -145,9 +201,11 @@ public class FilmService {
         Film film = filmStorage.deleteFilm(filmId);
         film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
         film.setGenres(filmGenreStorage.getFilmGenre(filmId));
+        film.setDirectors(filmDirectorStorage.getFilmDirector(filmId));
         film.setUserLikes(likesStorage.getLikes(filmId));
 
         filmGenreStorage.deleteFilmGenres(filmId);
+        filmDirectorStorage.deleteFilmDirectors(filmId);
         likesStorage.deleteFilmLikes(filmId);
 
         return film;
@@ -174,6 +232,7 @@ public class FilmService {
         Film film = filmStorage.getFilm(filmId);
         film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
         film.setGenres(filmGenreStorage.getFilmGenre(filmId));
+        film.setDirectors(filmDirectorStorage.getFilmDirector(filmId));
         film.setUserLikes(likesStorage.getLikes(filmId));
         return film;
     }
