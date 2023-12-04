@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.sql.ResultSet;
+import java.util.*;
 
 @Component
 public class DBLikesStorage {
@@ -50,5 +50,19 @@ public class DBLikesStorage {
         return new HashSet<>(jdbcTemplate.query(sqlQuery,
                 (resultSet, rowNum) -> resultSet.getInt("film_id"),
                 userId));
+    }
+
+    public Map<Integer, List<Integer>> getUsersLikes() {
+        String sqlQuery = "select user_id, film_id from likes;";
+        Map<Integer, List<Integer>> result = new HashMap<>();
+        jdbcTemplate.query(sqlQuery, (ResultSet rs) -> {
+            int thisUserId = rs.getInt("user_id");
+            int thisFilmId = rs.getInt("film_id");
+            if (!result.containsKey(thisUserId)) {
+                result.put(thisUserId, new ArrayList<>());
+            }
+            result.get(thisUserId).add(thisFilmId);
+        });
+        return result;
     }
 }
