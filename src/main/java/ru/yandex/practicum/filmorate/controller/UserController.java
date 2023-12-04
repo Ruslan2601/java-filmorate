@@ -35,6 +35,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(userId));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<User> deleteUser(@PathVariable("id") int id) {
+        log.info("Запрос на удаление пользователя с id = {}", id);
+        return ResponseEntity.ok(userService.deleteUser(id));
+    }
+
     @GetMapping("/{id}/friends")
     public ResponseEntity<List<User>> getFriends(@PathVariable("id") int userId) {
         log.info("Получен GET запрос на получение друзей пользователя");
