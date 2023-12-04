@@ -101,7 +101,6 @@ public class FilmService {
 
         if (sortBy.equals("likes")) {
             Collection<Film> films = filmDirectorStorage.getDirectorFilms(directorId);
-
             return films.stream()
                     .sorted((f1, f2) -> {
                         if (f2.getUserLikes() != null && f1.getUserLikes() != null) {
@@ -117,16 +116,12 @@ public class FilmService {
                     .collect(Collectors.toList());
         } else {
             List<Film> films = filmDirectorStorage.getDirectorFilms(directorId);
-            Map<Integer, Mpa> mpa = mpaStorage.getAllMpa();
-
-            for (Film film : films) {
-                film.setMpa(mpa.get(film.getMpa().getId()));
-                film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
-                film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
-                film.setUserLikes(likesStorage.getLikes(film.getId()));
-            }
-
-            return films;
+            return films.stream()
+                    .peek(film -> film.setMpa(mpaStorage.getMpa(film.getMpa().getId())))
+                    .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
+                    .peek(film -> film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId())))
+                    .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
+                    .collect(Collectors.toList());
         }
     }
 
