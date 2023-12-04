@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -75,5 +76,11 @@ public class UserController {
     public ResponseEntity<List<Film>> getRecommendations(@PathVariable("id") int userId) {
         log.info("Получен GET запрос на получение рекомендации по фильмам для просмотра");
         return ResponseEntity.ok(userService.getRecommendations(userId));
+    }
+
+    @GetMapping("/{id}/feed")
+    public ResponseEntity<List<Event>> getFeed(@PathVariable("id") int userID) {
+        log.info("Получен GET запрос на получение ленты событий");
+        return ResponseEntity.ok(userService.getAllFeedByUserId(userID));
     }
 }
