@@ -12,8 +12,10 @@ import ru.yandex.practicum.filmorate.model.enumerations.Operation;
 import ru.yandex.practicum.filmorate.storage.DBFilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.DBFriendsStorage;
 import ru.yandex.practicum.filmorate.storage.DBLikesStorage;
+import ru.yandex.practicum.filmorate.storage.DBReviewUserLikesStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
+import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
@@ -119,11 +121,7 @@ public class UserService {
     }
 
     public User deleteUser(int userId) {
-        User user = userStorage.deleteUser(userId);
-        user.setFriends(friendsStorage.getFriends(userId));
-        friendsStorage.deleteFriends(userId);
-        likesStorage.deleteUserLikes(userId);
-        return user;
+        return userStorage.deleteUser(userId);
     }
 
     public User deleteFriend(int userId, int friendId) {
