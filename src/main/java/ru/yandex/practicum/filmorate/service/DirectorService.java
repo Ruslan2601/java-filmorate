@@ -33,13 +33,9 @@ public class DirectorService {
         return directorStorage.addDirector(director);
     }
 
-    ;
-
     public Director updateDirector(Director director) {
         return directorStorage.updateDirector(director);
     }
-
-    ;
 
     public Director deleteDirector(int directorId) {
         List<Film> films = filmDirectorStorage.getDirectorFilms(directorId);
@@ -48,7 +44,4 @@ public class DirectorService {
         });
         return directorStorage.deleteDirector(directorId);
     }
-
-    ;
-
 }

@@ -33,7 +33,7 @@ public class DBFilmDirectorStorage {
     }
 
     public List<Film> getDirectorFilms(int directorId) {
-        String sqlQuery = "SELECT * FROM films f LEFT JOIN film_directors fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY EXTRACT(YEAR FROM CAST(f.release_date AS date)) ASC;";
+        String sqlQuery = "SELECT * FROM films f JOIN film_directors fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY EXTRACT(YEAR FROM f.release_date) ASC;";
         return jdbcTemplate.query(sqlQuery, DBFilmStorage::createFilm, directorId);
     }
 
