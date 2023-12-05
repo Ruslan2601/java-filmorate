@@ -98,6 +98,38 @@ public class DBFilmStorage implements FilmStorage {
         return film;
     }
 
+    @Override
+    public List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreID, int year) {
+        String sqlYear = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id FROM films f LEFT JOIN likes l on f.film_id = l.film_id " +
+                "WHERE Extract(year from cast(f.release_date as date)) = ?" +
+                "GROUP BY f.film_id " +
+                "ORDER BY count(l.user_id) desc " +
+                "limit ?;";
+        String sqlGenre = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id FROM films f LEFT JOIN likes l on f.film_id = l.film_id " +
+                "join film_genres fg on f.film_id = fg.film_id " +
+                "WHERE fg.genre_id = ?" +
+                "GROUP BY f.film_id " +
+                "ORDER BY count(l.user_id) desc " +
+                "limit ?;";
+        String sqlYearAndGenre = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id FROM films f LEFT JOIN likes l on f.film_id = l.film_id " +
+                "join film_genres fg on f.film_id = fg.film_id " +
+                "WHERE fg.genre_id = ? and Extract(year from cast(f.release_date as date)) = ?" +
+                "GROUP BY f.film_id " +
+                "ORDER BY count(l.user_id) desc " +
+                "limit ?;";
+
+        if (genreID != 0 && year != 0) {
+            return jdbcTemplate.query(sqlYearAndGenre, DBFilmStorage::createFilm, genreID, year, count);
+        }
+        if (genreID == 0) {
+            return jdbcTemplate.query(sqlYear, DBFilmStorage::createFilm, year, count);
+        }
+        if (year == 0) {
+            return jdbcTemplate.query(sqlGenre, DBFilmStorage::createFilm, genreID, count);
+        }
+        return Collections.emptyList();
+    }
+
     public static Film createFilm(ResultSet resultSet, int rowNum) throws SQLException {
         Film film = new Film();
         film.setId(resultSet.getInt("film_id"));

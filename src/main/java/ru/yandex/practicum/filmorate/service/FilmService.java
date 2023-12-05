@@ -229,6 +229,17 @@ public class FilmService {
         return film;
     }
 
+    public List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreID, int year) {
+        List<Film> filmList = filmStorage.getMostLikedFilmsByGenreAndYear(count, genreID, year);
+
+        return filmList.stream().peek(film -> {
+            film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
+            film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
+            film.setUserLikes(likesStorage.getLikes(film.getId()));
+            film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
+        }).collect(Collectors.toList());
+    }
+
     private Film collectFilm(int filmId) {
         Film film = filmStorage.getFilm(filmId);
         film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
