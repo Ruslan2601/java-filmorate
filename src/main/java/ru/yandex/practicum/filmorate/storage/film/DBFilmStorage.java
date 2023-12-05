@@ -91,18 +91,10 @@ public class DBFilmStorage implements FilmStorage {
     public Film deleteFilm(int filmId) {
         Film film = checkContainsFilm(filmId);
         String sqlQuery = "DELETE FROM films WHERE film_id = ?";
-        String sqlLikes = "DELETE " +
-                "FROM LIKES  " +
-                "WHERE film_id = ?;";
-        String sqlReviews = "DELETE " +
-                "FROM reviews " +
-                "WHERE film_id = ?;";
-        String sqlFilmDirectors = "DELETE " +
-                "FROM FILM_DIRECTORS " +
-                "WHERE film_id = ?;";
-        String sqlFilmGenres = "DELETE " +
-                "FROM film_genres " +
-                "WHERE film_id = ?;";
+        String sqlLikes = "DELETE FROM LIKES WHERE film_id = ?;";
+        String sqlReviews = "DELETE FROM reviews WHERE film_id = ?;";
+        String sqlFilmDirectors = "DELETE FROM FILM_DIRECTORS WHERE film_id = ?;";
+        String sqlFilmGenres = "DELETE FROM film_genres WHERE film_id = ?;";
 
         jdbcTemplate.update(sqlLikes, filmId);
         jdbcTemplate.update(sqlReviews, filmId);

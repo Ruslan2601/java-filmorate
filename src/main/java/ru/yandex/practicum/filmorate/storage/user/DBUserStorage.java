@@ -89,9 +89,7 @@ public class DBUserStorage implements UserStorage {
     public User deleteUser(int userId) {
         User user = checkContainsUser(userId);
         String sqlQuery = "DELETE FROM users WHERE user_id = ? ";
-        String sqlQueryFriends = "DELETE " +
-                "FROM FRIENDS " +
-                "WHERE USER_ID IN (SELECT USER_ID FROM USERS WHERE USER_ID = ? OR FRIEND_ID = ?);";
+        String sqlQueryFriends = "DELETE FROM FRIENDS WHERE USER_ID = ? OR FRIEND_ID = ?;";
         jdbcTemplate.update(sqlQueryFriends, userId, userId);
         jdbcTemplate.update(sqlQuery, userId);
         return user;
