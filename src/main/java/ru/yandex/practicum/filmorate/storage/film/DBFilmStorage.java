@@ -46,7 +46,6 @@ public class DBFilmStorage implements FilmStorage {
     @Override
     public Film addFilm(Film film) {
         checkNonContainsFilm(film.getId());
-        checkAddDuplicateFilm(film);
 
         fillingOptionalParameters(film);
         String sqlQuery = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
@@ -92,6 +91,23 @@ public class DBFilmStorage implements FilmStorage {
     public Film deleteFilm(int filmId) {
         Film film = checkContainsFilm(filmId);
         String sqlQuery = "DELETE FROM films WHERE film_id = ?";
+        String sqlLikes = "DELETE " +
+                "FROM LIKES  " +
+                "WHERE film_id = ?;";
+        String sqlReviews = "DELETE " +
+                "FROM reviews " +
+                "WHERE film_id = ?;";
+        String sqlFilmDirectors = "DELETE " +
+                "FROM FILM_DIRECTORS " +
+                "WHERE film_id = ?;";
+        String sqlFilmGenres = "DELETE " +
+                "FROM film_genres " +
+                "WHERE film_id = ?;";
+
+        jdbcTemplate.update(sqlLikes, filmId);
+        jdbcTemplate.update(sqlReviews, filmId);
+        jdbcTemplate.update(sqlFilmDirectors, filmId);
+        jdbcTemplate.update(sqlFilmGenres, filmId);
         jdbcTemplate.update(sqlQuery, filmId);
 
         return film;
@@ -142,14 +158,5 @@ public class DBFilmStorage implements FilmStorage {
         }
 
         return film.get(0);
-    }
-
-    private void checkAddDuplicateFilm(Film film) {
-        String sqlQuery = "SELECT * FROM films WHERE name = ?;";
-        List<Film> result = jdbcTemplate.query(sqlQuery, DBFilmStorage::createFilm, film.getName());
-
-        if (result.size() != 0) {
-            throw new AddExistObjectException("Фильм с таким названием уже существует name = " + film.getName());
-        }
     }
 }
