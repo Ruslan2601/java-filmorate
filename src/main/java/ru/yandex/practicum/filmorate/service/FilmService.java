@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.enumerations.EventType;
+import ru.yandex.practicum.filmorate.model.enumerations.Operation;
 import ru.yandex.practicum.filmorate.storage.DBFilmDirectorStorage;
 import ru.yandex.practicum.filmorate.storage.DBFilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.DBLikesStorage;
@@ -28,6 +30,7 @@ public class FilmService {
     private final DBFilmDirectorStorage filmDirectorStorage;
     private final DBLikesStorage likesStorage;
     private final UserStorage userStorage;
+    private final EventService eventService;
 
     @Autowired
     public FilmService(FilmStorage filmStorage,
@@ -36,7 +39,8 @@ public class FilmService {
                        DBFilmGenreStorage filmGenreStorage,
                        DBFilmDirectorStorage filmDirectorStorage,
                        DBLikesStorage likesStorage,
-                       UserStorage userStorage) {
+                       UserStorage userStorage,
+                       EventService eventService) {
         this.filmStorage = filmStorage;
         this.mpaStorage = mpaStorage;
         this.directorStorage = directorStorage;
@@ -44,6 +48,7 @@ public class FilmService {
         this.filmDirectorStorage = filmDirectorStorage;
         this.likesStorage = likesStorage;
         this.userStorage = userStorage;
+        this.eventService = eventService;
     }
 
     public List<Film> getAllFilms() {
@@ -61,8 +66,7 @@ public class FilmService {
     }
 
     public Film getFilm(int filmId) {
-        Film film = collectFilm(filmId);
-        return film;
+        return collectFilm(filmId);
     }
 
     public List<Film> getMostLikedFilms(int count) {
@@ -187,6 +191,8 @@ public class FilmService {
         likesStorage.addLike(userId, filmId);
         film.getUserLikes().add(userId);
 
+        eventService.crete(userId, filmId, EventType.LIKE, Operation.ADD);
+
         return film;
     }
 
@@ -217,6 +223,8 @@ public class FilmService {
 
         likesStorage.deleteLike(userId, filmId);
         film.getUserLikes().remove(userId);
+
+        eventService.crete(userId, filmId, EventType.LIKE, Operation.REMOVE);
 
         return film;
     }
