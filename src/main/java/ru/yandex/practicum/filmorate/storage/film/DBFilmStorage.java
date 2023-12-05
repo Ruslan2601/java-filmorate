@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.exception.exceptions.AddExistObjectExceptio
 import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
