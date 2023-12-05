@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -34,9 +33,17 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<List<Film>> getMostLikedFilms(@RequestParam(defaultValue = "10") int count) {
-        log.info("Получен GET запрос на получение лучших фильмов");
-        return ResponseEntity.ok(filmService.getMostLikedFilms(count));
+    public ResponseEntity<List<Film>> getMostLikedFilms(@RequestParam(defaultValue = "10") int count,
+                                                        @RequestParam(value = "genreId", defaultValue = "0", required = false) int genreId,
+                                                        @RequestParam(value = "year", defaultValue = "0", required = false) int year) {
+        if (genreId == 0 & year == 0) {
+            log.info("Получен GET запрос на получение лучших фильмов");
+            return ResponseEntity.ok(filmService.getMostLikedFilms(count));
+        } else {
+            log.info("Получен GET запрос на получение самых популярных фильмов по жанру и году");
+            return ResponseEntity.ok(filmService.getMostLikedFilmsByGenreAndYear(count, genreId, year));
+        }
+
     }
 
     @GetMapping("/search")
@@ -80,6 +87,12 @@ public class FilmController {
     public ResponseEntity<Film> deleteLikeToFilm(@PathVariable("id") int filmId, @PathVariable int userId) {
         log.info("Получен DELETE запрос на удаление лайка фильму");
         return ResponseEntity.ok(filmService.deleteLikeToFilm(filmId, userId));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Film> deleteFilm(@PathVariable("id") int id) {
+        log.info("Запорос на удаление фильма с id = " + id);
+        return ResponseEntity.ok(filmService.deleteFilm(id));
     }
 
     @GetMapping("/common")

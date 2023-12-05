@@ -46,7 +46,6 @@ public class DBFilmStorage implements FilmStorage {
     @Override
     public Film addFilm(Film film) {
         checkNonContainsFilm(film.getId());
-        checkAddDuplicateFilm(film);
 
         fillingOptionalParameters(film);
         String sqlQuery = "INSERT INTO films (name, description, release_date, duration, mpa_id)" +
@@ -91,11 +90,51 @@ public class DBFilmStorage implements FilmStorage {
     @Override
     public Film deleteFilm(int filmId) {
         Film film = checkContainsFilm(filmId);
-        String sqlQuery = "DELETE FROM films WHERE film_id = ?;";
+        String sqlQuery = "DELETE FROM films WHERE film_id = ?";
+        String sqlLikes = "DELETE FROM LIKES WHERE film_id = ?;";
+        String sqlReviews = "DELETE FROM reviews WHERE film_id = ?;";
+        String sqlFilmDirectors = "DELETE FROM FILM_DIRECTORS WHERE film_id = ?;";
+        String sqlFilmGenres = "DELETE FROM film_genres WHERE film_id = ?;";
 
+        jdbcTemplate.update(sqlLikes, filmId);
+        jdbcTemplate.update(sqlReviews, filmId);
+        jdbcTemplate.update(sqlFilmDirectors, filmId);
+        jdbcTemplate.update(sqlFilmGenres, filmId);
         jdbcTemplate.update(sqlQuery, filmId);
 
         return film;
+    }
+
+    @Override
+    public List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreID, int year) {
+        String sqlYear = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id FROM films f LEFT JOIN likes l on f.film_id = l.film_id " +
+                "WHERE Extract(year from cast(f.release_date as date)) = ?" +
+                "GROUP BY f.film_id " +
+                "ORDER BY count(l.user_id) desc " +
+                "limit ?;";
+        String sqlGenre = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id FROM films f LEFT JOIN likes l on f.film_id = l.film_id " +
+                "join film_genres fg on f.film_id = fg.film_id " +
+                "WHERE fg.genre_id = ?" +
+                "GROUP BY f.film_id " +
+                "ORDER BY count(l.user_id) desc " +
+                "limit ?;";
+        String sqlYearAndGenre = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id FROM films f LEFT JOIN likes l on f.film_id = l.film_id " +
+                "join film_genres fg on f.film_id = fg.film_id " +
+                "WHERE fg.genre_id = ? and Extract(year from cast(f.release_date as date)) = ?" +
+                "GROUP BY f.film_id " +
+                "ORDER BY count(l.user_id) desc " +
+                "limit ?;";
+
+        if (genreID != 0 && year != 0) {
+            return jdbcTemplate.query(sqlYearAndGenre, DBFilmStorage::createFilm, genreID, year, count);
+        }
+        if (genreID == 0) {
+            return jdbcTemplate.query(sqlYear, DBFilmStorage::createFilm, year, count);
+        }
+        if (year == 0) {
+            return jdbcTemplate.query(sqlGenre, DBFilmStorage::createFilm, genreID, count);
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -179,14 +218,5 @@ public class DBFilmStorage implements FilmStorage {
         }
 
         return film.get(0);
-    }
-
-    private void checkAddDuplicateFilm(Film film) {
-        String sqlQuery = "SELECT * FROM films WHERE name = ?;";
-        List<Film> result = jdbcTemplate.query(sqlQuery, DBFilmStorage::createFilm, film.getName());
-
-        if (result.size() != 0) {
-            throw new AddExistObjectException("Фильм с таким названием уже существует name = " + film.getName());
-        }
     }
 }
