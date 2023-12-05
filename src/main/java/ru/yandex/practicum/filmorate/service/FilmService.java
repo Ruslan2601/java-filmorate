@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.exceptions.IncorrectObjectModificationException;
 import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -17,10 +16,8 @@ import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+
 import java.util.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -185,12 +182,9 @@ public class FilmService {
 
         Film film = collectFilm(filmId);
 
-        if (film.getUserLikes().contains(userId)) {
-            throw new IncorrectObjectModificationException("Невозможно поставить уже существующий "
-                    + "лайк пользователя с id = " + userId + " для фильма с id = " + filmId);
+        if (!film.getUserLikes().contains(userId)) {
+            likesStorage.addLike(userId, filmId);
         }
-
-        likesStorage.addLike(userId, filmId);
         film.getUserLikes().add(userId);
 
         eventService.crete(userId, filmId, EventType.LIKE, Operation.ADD);

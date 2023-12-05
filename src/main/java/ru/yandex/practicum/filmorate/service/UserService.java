@@ -119,11 +119,7 @@ public class UserService {
     }
 
     public User deleteUser(int userId) {
-        User user = userStorage.deleteUser(userId);
-        user.setFriends(friendsStorage.getFriends(userId));
-        friendsStorage.deleteFriends(userId);
-        likesStorage.deleteUserLikes(userId);
-        return user;
+        return userStorage.deleteUser(userId);
     }
 
     public User deleteFriend(int userId, int friendId) {
