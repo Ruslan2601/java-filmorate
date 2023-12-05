@@ -12,10 +12,8 @@ import ru.yandex.practicum.filmorate.model.enumerations.Operation;
 import ru.yandex.practicum.filmorate.storage.DBFilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.DBFriendsStorage;
 import ru.yandex.practicum.filmorate.storage.DBLikesStorage;
-import ru.yandex.practicum.filmorate.storage.DBReviewUserLikesStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
-import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
