@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.exceptions.AddExistObjectException;
 import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.enumerations.EventType;
+import ru.yandex.practicum.filmorate.model.enumerations.Operation;
 import ru.yandex.practicum.filmorate.storage.DBReviewUserLikesStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.DBReviewStorage;
@@ -20,16 +22,19 @@ public class ReviewService {
     private final DBReviewUserLikesStorage reviewUserLikesStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final EventService eventService;
 
     @Autowired
     public ReviewService(@Qualifier("dBReviewStorage") DBReviewStorage reviewStorage,
                          DBReviewUserLikesStorage reviewUserLikesStorage,
                          @Qualifier("dBUserStorage") UserStorage userStorage,
-                         @Qualifier("dBFilmStorage") FilmStorage filmStorage) {
+                         @Qualifier("dBFilmStorage") FilmStorage filmStorage,
+                         EventService eventService) {
         this.reviewStorage = reviewStorage;
         this.reviewUserLikesStorage = reviewUserLikesStorage;
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.eventService = eventService;
     }
 
     public List<Review> getReviews(int filmId, int count) {
@@ -43,13 +48,17 @@ public class ReviewService {
     public Review addReview(Review review) {
         userStorage.getUser(review.getUserId());
         filmStorage.getFilm(review.getFilmId());
-        return reviewStorage.addReview(review);
+        Review createdReview = reviewStorage.addReview(review);
+        eventService.crete(createdReview.getUserId(), createdReview.getReviewId(), EventType.REVIEW, Operation.ADD);
+        return createdReview;
     }
 
     public Review updateReview(Review review) {
         userStorage.getUser(review.getUserId());
         filmStorage.getFilm(review.getFilmId());
-        return reviewStorage.updateReview(review);
+        Review updatedReview = reviewStorage.updateReview(review);
+        eventService.crete(updatedReview.getUserId(), updatedReview.getReviewId(), EventType.REVIEW, Operation.UPDATE);
+        return updatedReview;
     }
 
     public Review addLikeToReview(int reviewId, int userId) {
@@ -82,6 +91,7 @@ public class ReviewService {
         Review review = reviewStorage.getReview(reviewId);
         reviewUserLikesStorage.deleteAllReactionsFromReview(reviewId);
         reviewStorage.deleteReview(reviewId);
+        eventService.crete(review.getUserId(), reviewId, EventType.REVIEW, Operation.REMOVE);
         return review;
     }
 

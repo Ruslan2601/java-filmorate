@@ -4,8 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.exceptions.IncorrectObjectModificationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enumerations.EventType;
+import ru.yandex.practicum.filmorate.model.enumerations.Operation;
 import ru.yandex.practicum.filmorate.storage.DBFilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.DBFriendsStorage;
 import ru.yandex.practicum.filmorate.storage.DBLikesStorage;
@@ -24,20 +27,23 @@ public class UserService {
     private final FilmStorage filmStorage;
     private final MpaStorage mpaStorage;
     private final DBFilmGenreStorage filmGenreStorage;
+    private final EventService eventService;
 
     @Autowired
     public UserService(@Qualifier("dBUserStorage") UserStorage userStorage,
                        @Qualifier("dBFilmStorage") FilmStorage filmStorage,
                        DBFriendsStorage friendsStorage,
+                       DBLikesStorage likesStorage,
+                       EventService eventService,
                        MpaStorage mpaStorage,
-                       DBFilmGenreStorage filmGenreStorage,
-                       DBLikesStorage likesStorage) {
+                       DBFilmGenreStorage filmGenreStorage) {
         this.userStorage = userStorage;
         this.friendsStorage = friendsStorage;
         this.likesStorage = likesStorage;
         this.filmStorage = filmStorage;
         this.mpaStorage = mpaStorage;
         this.filmGenreStorage = filmGenreStorage;
+        this.eventService = eventService;
     }
 
     public List<User> getAllUsers() {
@@ -107,6 +113,8 @@ public class UserService {
         friendsStorage.addFriend(userId, friendId);
         user.setFriends(new HashSet<>(friendsStorage.getFriends(userId)));
 
+        eventService.crete(userId, friendId, EventType.FRIEND, Operation.ADD);
+
         return user;
     }
 
@@ -135,6 +143,8 @@ public class UserService {
 
         friendsStorage.deleteFriend(userId, friendId);
         user.setFriends(friendsStorage.getFriends(userId));
+
+        eventService.crete(userId, friendId, EventType.FRIEND, Operation.REMOVE);
 
         return user;
     }
@@ -180,5 +190,10 @@ public class UserService {
         }
 
         return recommendation;
+    }
+
+    public List<Event> getAllFeedByUserId(int userId) {
+        userStorage.getUser(userId);
+        return eventService.getAllByUserId(userId);
     }
 }
