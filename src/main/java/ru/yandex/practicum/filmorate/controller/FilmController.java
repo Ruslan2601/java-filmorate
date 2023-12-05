@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -75,6 +74,12 @@ public class FilmController {
     public ResponseEntity<Film> deleteLikeToFilm(@PathVariable("id") int filmId, @PathVariable int userId) {
         log.info("Получен DELETE запрос на удаление лайка фильму");
         return ResponseEntity.ok(filmService.deleteLikeToFilm(filmId, userId));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Film> deleteFilm(@PathVariable("id") int id) {
+        log.info("Запорос на удаление фильма с id = " + id);
+        return ResponseEntity.ok(filmService.deleteFilm(id));
     }
 
     @GetMapping("/common")
