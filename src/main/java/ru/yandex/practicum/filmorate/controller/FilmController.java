@@ -46,6 +46,19 @@ public class FilmController {
 
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Film>> getSearch(
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "by", required = false) String by
+    ) {
+        log.debug("Возвращаем фильмы с поисковым запросом: {}", query);
+        if (query == null || by == null) {
+            return ResponseEntity.ok(filmService.getMostLikedFilms(filmService.getAllFilms().size()));
+        } else {
+            return ResponseEntity.ok(filmService.searchFilms(query, by));
+        }
+    }
+
     @GetMapping("/director/{directorId}")
     public ResponseEntity<List<Film>> getDirectorFilms(@PathVariable int directorId, @RequestParam(defaultValue = "year") String sortBy) {
         log.info("Получен GET запрос на получение списка фильмов режиссера");

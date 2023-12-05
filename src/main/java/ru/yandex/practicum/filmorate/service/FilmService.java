@@ -17,8 +17,10 @@ import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-
 import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -267,6 +269,16 @@ public class FilmService {
                 .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
                 .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
                 .sorted((f1, f2) -> f2.getUserLikes().size() - f1.getUserLikes().size())
+                .collect(Collectors.toList());
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        boolean isDirector = by.contains("director");
+        boolean isTitle = by.contains("title");
+        return filmStorage.searchFilm(query, isDirector, isTitle).stream()
+                .peek(film -> film.setMpa(mpaStorage.getMpa(film.getMpa().getId())))
+                .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
+                .peek(film -> film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId())))
                 .collect(Collectors.toList());
     }
 }

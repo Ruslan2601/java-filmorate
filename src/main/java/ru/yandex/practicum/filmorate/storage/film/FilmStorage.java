@@ -18,4 +18,6 @@ public interface FilmStorage {
     Film deleteFilm(int filmId);
 
     List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreID, int year);
+
+    List<Film> searchFilm(String query, boolean directors, boolean tittle);
 }

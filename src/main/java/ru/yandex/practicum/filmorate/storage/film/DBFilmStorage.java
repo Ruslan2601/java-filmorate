@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.exception.exceptions.AddExistObjectExceptio
 import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -133,6 +132,42 @@ public class DBFilmStorage implements FilmStorage {
         }
         if (year == 0) {
             return jdbcTemplate.query(sqlGenre, DBFilmStorage::createFilm, genreID, count);
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Film> searchFilm(String query, boolean directors, boolean title) {
+        String sqlDirectorsTittle = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id, COUNT(l.user_id) AS likes_count \n" +
+                "FROM films AS f " +
+                "LEFT JOIN film_directors AS fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
+                "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "WHERE UPPER(f.name) LIKE UPPER('%" + query + "%') OR UPPER(d.name) LIKE UPPER('%" + query + "%') " +
+                "GROUP BY f.film_id " +
+                "ORDER BY likes_count DESC";
+        String sqlTittle = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id, COUNT(l.user_id) AS likes_count \n" +
+                "FROM films AS f " +
+                "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "WHERE UPPER(f.name) LIKE UPPER('%" + query + "%') " +
+                "GROUP BY f.film_id " +
+                "ORDER BY likes_count DESC";
+        String sqlDirectors = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id, COUNT(l.user_id) AS likes_count \n" +
+                "FROM films AS f " +
+                "LEFT JOIN film_directors AS fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
+                "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "WHERE UPPER(d.name) LIKE UPPER('%" + query + "%') " +
+                "GROUP BY f.film_id " +
+                "ORDER BY likes_count DESC";
+        if (directors && title) {
+            return jdbcTemplate.query(sqlDirectorsTittle, DBFilmStorage::createFilm);
+        }
+        if (directors) {
+            return jdbcTemplate.query(sqlDirectors, DBFilmStorage::createFilm);
+        }
+        if (title) {
+            return jdbcTemplate.query(sqlTittle, DBFilmStorage::createFilm);
         }
         return Collections.emptyList();
     }
