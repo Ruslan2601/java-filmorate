@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -28,7 +29,7 @@ public class Film {
     @CorrectMpaId
     private Mpa mpa;
     @CorrectGenresId
-    private Set<Genre> genres;
-    private Set<Integer> userLikes;
+    private Set<Genre> genres = new HashSet<>();
+    private Set<Integer> userLikes = new HashSet<>();
     private Set<Director> directors;
 }

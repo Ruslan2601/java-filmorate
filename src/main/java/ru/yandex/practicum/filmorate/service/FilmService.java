@@ -249,19 +249,18 @@ public class FilmService {
         userStorage.getUser(userId);
         userStorage.getUser(friendId);
 
-        Set<Integer> filmIds = likesStorage.getLikesFilm(userId);
-        Set<Integer> friendFilmIds = likesStorage.getLikesFilm(friendId);
+        List<Film> films = filmStorage.getCommonFriendFilms(userId, friendId);
 
-        if (filmIds.isEmpty() || friendFilmIds.isEmpty()) {
+        if (films.isEmpty()) {
             return new ArrayList<>();
         }
 
-        return filmIds.stream()
-                .filter(friendFilmIds::contains)
-                .map(filmStorage::getFilm)
-                .peek(film -> film.setMpa(mpaStorage.getMpa(film.getMpa().getId())))
-                .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
-                .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
+        Map<Integer, Set<Genre>> filmGenresMap = filmGenreStorage.getFilmGenre(films);
+        Map<Integer, Set<Integer>> filmLikesMap = likesStorage.getLikes(films);
+
+        return films.stream()
+                .peek(film -> film.setGenres(filmGenresMap.get(film.getId())))
+                .peek(film -> film.setUserLikes(filmLikesMap.get(film.getId())))
                 .sorted((f1, f2) -> f2.getUserLikes().size() - f1.getUserLikes().size())
                 .collect(Collectors.toList());
     }

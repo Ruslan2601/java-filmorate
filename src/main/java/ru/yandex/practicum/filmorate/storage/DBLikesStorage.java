@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.storage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.ResultSet;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class DBLikesStorage {
@@ -22,6 +24,20 @@ public class DBLikesStorage {
         return new HashSet<>(jdbcTemplate.query(sqlQuery,
                 (resultSet, rowNum) -> resultSet.getInt("user_id"),
                 filmId));
+    }
+
+    public Map<Integer, Set<Integer>> getLikes(List<Film> films) {
+        String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
+        String sqlQuery = String.format("SELECT user_id, film_id FROM likes WHERE film_id in (%s);", inSql);
+
+        Map<Integer, Set<Integer>> result = films.stream().collect(Collectors.toMap(Film::getId, Film::getUserLikes));
+
+        jdbcTemplate.query(sqlQuery, result.keySet().toArray(), (ResultSet rs) -> {
+            int filmId = rs.getInt("film_id");
+            int userId = rs.getInt("user_id");
+            result.get(filmId).add(userId);
+        });
+        return result;
     }
 
     public void addLike(int userId, int filmId) {
