@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.storage.DBFilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.DBLikesStorage;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
@@ -31,7 +30,6 @@ public class FilmService {
 
     @Autowired
     public FilmService(FilmStorage filmStorage,
-                       MpaStorage mpaStorage,
                        DirectorStorage directorStorage,
                        DBFilmGenreStorage filmGenreStorage,
                        DBFilmDirectorStorage filmDirectorStorage,
@@ -101,7 +99,6 @@ public class FilmService {
             films = filmDirectorStorage.getDirectorFilms(directorId, "likes");
         }
         return films.stream()
-                .peek(film -> film.setMpa(mpaStorage.getMpa(film.getMpa().getId())))
                 .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
                 .peek(film -> film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId())))
                 .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
