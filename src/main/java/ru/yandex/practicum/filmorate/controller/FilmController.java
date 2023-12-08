@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.enumerations.SortType;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -61,9 +63,10 @@ public class FilmController {
     }
 
     @GetMapping("/director/{directorId}")
-    public ResponseEntity<List<Film>> getDirectorFilms(@PathVariable int directorId, @RequestParam(defaultValue = "year") String sortBy) {
+    public ResponseEntity<List<Film>> getDirectorFilms(@PathVariable int directorId,
+                                                       @RequestParam(defaultValue = "year") String sortBy) {
         log.info("Получен GET запрос на получение списка фильмов режиссера");
-        return ResponseEntity.ok(filmService.getDirectorFilms(directorId, sortBy));
+        return ResponseEntity.ok(filmService.getDirectorFilms(directorId, SortType.fromStringIgnoreCase(sortBy)));
     }
 
     @PostMapping

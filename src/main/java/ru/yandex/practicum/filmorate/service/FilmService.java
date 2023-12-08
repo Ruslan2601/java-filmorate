@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.enumerations.EventType;
 import ru.yandex.practicum.filmorate.model.enumerations.Operation;
+import ru.yandex.practicum.filmorate.model.enumerations.SortType;
 import ru.yandex.practicum.filmorate.storage.DBFilmDirectorStorage;
 import ru.yandex.practicum.filmorate.storage.DBFilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.DBLikesStorage;
@@ -92,11 +93,11 @@ public class FilmService {
         return mostLikedFilms;
     }
 
-    public List<Film> getDirectorFilms(int directorId, String sortBy) {
+    public List<Film> getDirectorFilms(int directorId, SortType sortBy) {
         directorStorage.checkContainsDirector(directorId);
-        List<Film> films = filmDirectorStorage.getDirectorFilms(directorId, "year");
-        if (sortBy.equals("likes")) {
-            films = filmDirectorStorage.getDirectorFilms(directorId, "likes");
+        List<Film> films = filmDirectorStorage.getDirectorFilms(directorId, SortType.YEAR);
+        if (sortBy.equals(SortType.LIKES)) {
+            films = filmDirectorStorage.getDirectorFilms(directorId, SortType.LIKES);
         }
         return films.stream()
                 .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))

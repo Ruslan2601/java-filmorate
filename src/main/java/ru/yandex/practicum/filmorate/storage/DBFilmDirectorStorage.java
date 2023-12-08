@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.enumerations.SortType;
 import ru.yandex.practicum.filmorate.storage.director.DBDirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.DBFilmStorage;
 
@@ -32,9 +33,9 @@ public class DBFilmDirectorStorage {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public List<Film> getDirectorFilms(int directorId, String sort) {
+    public List<Film> getDirectorFilms(int directorId, SortType sort) {
         String sqlQuery = "SELECT *,m.name AS mpa_name FROM films AS f JOIN mpa m ON f.mpa_id = m.mpa_id JOIN film_directors fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY EXTRACT(YEAR FROM f.release_date) ASC;";
-        if (sort.equals("likes")) {
+        if (sort.equals(SortType.LIKES)) {
             sqlQuery = "SELECT f.*, m.name AS mpa_name, COUNT(l.user_id) AS total_likes FROM films f JOIN film_directors fd " +
                     "ON fd.film_id = f.film_id JOIN directors d ON d.director_id = fd.director_id LEFT JOIN  likes l " +
                     "ON l.film_id = f.film_id JOIN mpa m ON f.mpa_id = m.mpa_id WHERE d.director_id = ? GROUP BY f.film_id, d.director_id ORDER BY total_likes DESC;";
