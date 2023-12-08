@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.model.Review;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,9 +26,6 @@ public class DBReviewStorage implements ReviewStorage {
 
     @Override
     public List<Review> getReviews(int filmId, int count) {
-        if (count == 0) {
-            return new ArrayList<>();
-        }
 
         String sqlQuery = "SELECT * \n" +
                 "FROM (SELECT r.*, \n" +
