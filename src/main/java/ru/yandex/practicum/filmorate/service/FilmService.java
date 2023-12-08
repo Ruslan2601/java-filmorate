@@ -101,31 +101,16 @@ public class FilmService {
 
     public List<Film> getDirectorFilms(int directorId, String sortBy) {
         directorStorage.checkContainsDirector(directorId);
-
+        List<Film> films = filmDirectorStorage.getDirectorFilms(directorId, "year");
         if (sortBy.equals("likes")) {
-            Collection<Film> films = filmDirectorStorage.getDirectorFilms(directorId);
-            return films.stream()
-                    .sorted((f1, f2) -> {
-                        if (f2.getUserLikes() != null && f1.getUserLikes() != null) {
-                            return f1.getUserLikes().size() - f2.getUserLikes().size();
-                        }
-
-                        return f1.getId() - f2.getId();
-                    })
-                    .peek(film -> film.setMpa(mpaStorage.getMpa(film.getMpa().getId())))
-                    .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
-                    .peek(film -> film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId())))
-                    .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
-                    .collect(Collectors.toList());
-        } else {
-            List<Film> films = filmDirectorStorage.getDirectorFilms(directorId);
-            return films.stream()
-                    .peek(film -> film.setMpa(mpaStorage.getMpa(film.getMpa().getId())))
-                    .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
-                    .peek(film -> film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId())))
-                    .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
-                    .collect(Collectors.toList());
+            films = filmDirectorStorage.getDirectorFilms(directorId, "likes");
         }
+        return films.stream()
+                .peek(film -> film.setMpa(mpaStorage.getMpa(film.getMpa().getId())))
+                .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
+                .peek(film -> film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId())))
+                .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
+                .collect(Collectors.toList());
     }
 
     public Film addFilm(Film film) {

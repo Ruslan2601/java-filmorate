@@ -38,10 +38,6 @@ public class DirectorService {
     }
 
     public Director deleteDirector(int directorId) {
-        List<Film> films = filmDirectorStorage.getDirectorFilms(directorId);
-        films.forEach(film -> {
-            filmDirectorStorage.deleteFilmDirector(film.getId(), directorId);
-        });
         return directorStorage.deleteDirector(directorId);
     }
 }
