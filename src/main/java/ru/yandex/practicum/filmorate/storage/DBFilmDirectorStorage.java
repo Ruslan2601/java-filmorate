@@ -37,7 +37,7 @@ public class DBFilmDirectorStorage {
     }
 
     public List<Film> getDirectorFilms(int directorId, SortType sort) {
-        String sqlQuery = "";
+        String sqlQuery;
         String sqlQueryOrderYear = "SELECT *,m.name AS mpa_name FROM films AS f " +
                 "JOIN mpa m ON f.mpa_id = m.mpa_id " +
                 "JOIN film_directors fd ON f.film_id = fd.film_id " +

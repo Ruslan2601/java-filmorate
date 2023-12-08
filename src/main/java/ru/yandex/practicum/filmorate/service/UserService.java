@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.exceptions.IncorrectObjectModificationException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.enumerations.EventType;
 import ru.yandex.practicum.filmorate.model.enumerations.Operation;
@@ -164,23 +165,20 @@ public class UserService {
         }
 
         int friendId = Collections.max(recMap.entrySet(), Map.Entry.comparingByValue()).getKey();
-        List<Integer> friendList = allUsers.getOrDefault(friendId, Collections.emptyList());
-
-        List<Film> recommendation = friendList.stream()
+        List<Integer> friendList = allUsers.getOrDefault(friendId, Collections.emptyList())
+                .stream()
                 .filter(id -> !userList.contains(id))
-                .map(id -> {
-                    Film film = filmStorage.getFilm(id);
-                    film.setGenres(filmGenreStorage.getFilmGenre(id));
-                    film.setUserLikes(likesStorage.getLikes(id));
-                    return film;
-                })
                 .collect(Collectors.toList());
 
-        if (recommendation.isEmpty()) {
-            return Collections.emptyList();
-        }
+        List<Film> recommendationFilms = filmStorage.getFilm(friendList);
+        Map<Integer, Set<Genre>> filmGenresMap = filmGenreStorage.getFilmGenre(recommendationFilms);
+        Map<Integer, Set<Integer>> filmLikesMap = likesStorage.getLikes(recommendationFilms);
 
-        return recommendation;
+        return recommendationFilms.stream()
+                .peek(film -> {
+                    film.setGenres(filmGenresMap.get(film.getId()));
+                    film.setUserLikes(filmLikesMap.get(film.getId()));
+                }).collect(Collectors.toList());
     }
 
     public List<Event> getAllFeedByUserId(int userId) {
