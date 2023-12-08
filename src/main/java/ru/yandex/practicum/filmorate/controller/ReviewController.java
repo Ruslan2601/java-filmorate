@@ -3,16 +3,19 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
 @RequestMapping("/reviews")
 @Slf4j
+@Validated
 public class ReviewController {
     private final ReviewService reviewService;
 
@@ -23,14 +26,14 @@ public class ReviewController {
 
     @GetMapping
     public ResponseEntity<List<Review>> getReviews(@RequestParam(defaultValue = "0") int filmId,
-                                                   @RequestParam(defaultValue = "10") int count) {
-        log.info("Получен GET запрос на получение всех отзывов с filmId = " + filmId + ", count = " + count);
+                                                   @Positive @RequestParam(defaultValue = "10") int count) {
+        log.info("Получен GET запрос на получение всех отзывов с filmId = {}, count = {}", filmId, count);
         return ResponseEntity.ok(reviewService.getReviews(filmId, count));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Review> getReview(@PathVariable("id") int reviewId) {
-        log.info("Получен GET запрос на получение отзыва с reviewId = " + reviewId);
+        log.info("Получен GET запрос на получение отзыва с reviewId = {}", reviewId);
         return ResponseEntity.ok(reviewService.getReview(reviewId));
     }
 

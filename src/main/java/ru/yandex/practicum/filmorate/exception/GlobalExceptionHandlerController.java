@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.exception.exceptions.AddExistObjectExceptio
 import ru.yandex.practicum.filmorate.exception.exceptions.IncorrectObjectModificationException;
 import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectException;
 
+import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,14 @@ public class GlobalExceptionHandlerController {
     @ExceptionHandler
     public ResponseEntity<ExceptionHandlerResponse> invalidRequest(HttpMessageNotReadableException exception) {
         ExceptionHandlerResponse response = new ExceptionHandlerResponse("Запрос составлен неправильно",
+                exception.getMessage());
+        log.warn(response.toString());
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ExceptionHandlerResponse> invalidValidated(ConstraintViolationException exception) {
+        ExceptionHandlerResponse response = new ExceptionHandlerResponse("Задано неправильное значение переменной",
                 exception.getMessage());
         log.warn(response.toString());
         return ResponseEntity.badRequest().body(response);

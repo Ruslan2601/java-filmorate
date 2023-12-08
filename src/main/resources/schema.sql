@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 CREATE TABLE IF NOT EXISTS review_user_likes (
     review_id INTEGER REFERENCES reviews (review_id),
     user_id INTEGER REFERENCES users (user_id),
-    is_positive BOOLEAN NOT NULL,
+    is_positive INTEGER NOT NULL,
     PRIMARY KEY (review_id, user_id)
 );
 

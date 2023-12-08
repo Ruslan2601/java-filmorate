@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.model.Review;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,33 +26,18 @@ public class DBReviewStorage implements ReviewStorage {
 
     @Override
     public List<Review> getReviews(int filmId, int count) {
-        if (count == 0) {
-            return new ArrayList<>();
-        }
-
-        String sqlQuery = "SELECT * \n" +
-                "FROM (SELECT r.*, \n" +
-                "             COALESCE(u.useful, 0) AS useful \n" +
-                "      FROM reviews AS r \n" +
-                "      LEFT JOIN (SELECT t1.review_id, COALESCE(count_true, 0) - (count_all - COALESCE(count_true, 0)) AS useful \n" +
-                "                 FROM (SELECT r.review_id, COUNT(*) AS count_all \n" +
-                "                       FROM reviews AS r \n" +
-                "                       JOIN review_user_likes AS rul ON r.review_id = rul.review_id \n" +
-                "                       GROUP BY r.review_id) AS t1 \n" +
-                "                 LEFT JOIN (SELECT r.review_id, COUNT(*) AS count_true \n" +
-                "                            FROM reviews AS r \n" +
-                "                            JOIN review_user_likes AS rul ON r.review_id = rul.review_id \n" +
-                "                            WHERE rul.is_positive = TRUE \n" +
-                "                            GROUP BY r.review_id) AS t2 \n" +
-                "                 ON t1.review_id = t2.review_id) AS u \n" +
-                "      ON r.review_id = u.review_id)";
+        String sqlQuery = "SELECT r.*, COALESCE(SUM(rul.is_positive), 0) AS useful \n" +
+                "FROM reviews AS r \n" +
+                "LEFT JOIN review_user_likes AS rul ON r.review_id = rul.REVIEW_ID \n";
         List<Review> reviews;
 
         if (filmId == 0) {
-            sqlQuery += "ORDER BY useful DESC;";
+            sqlQuery += "GROUP BY r.review_id \n" +
+                    "ORDER BY useful DESC \n";
             reviews = jdbcTemplate.query(sqlQuery, DBReviewStorage::createReview);
         } else {
-            sqlQuery += "WHERE film_id = ? \n" +
+            sqlQuery += "WHERE r.film_id = ? \n" +
+                    "GROUP BY r.review_id \n" +
                     "ORDER BY useful DESC \n" +
                     "LIMIT ?;";
             reviews = jdbcTemplate.query(sqlQuery, DBReviewStorage::createReview, filmId, count);
@@ -134,19 +118,13 @@ public class DBReviewStorage implements ReviewStorage {
     }
 
     private Review checkContainsReview(int reviewId) {
-        String sqlQuery = "SELECT *, \n" +
-                "       (SELECT COUNT(*) \n" +
-                "        FROM review_user_likes \n" +
-                "        WHERE review_id = ? \n" +
-                "          AND is_positive = TRUE) - \n" +
-                "       (SELECT COUNT(*) \n" +
-                "        FROM review_user_likes \n" +
-                "        WHERE review_id = ? \n" +
-                "          AND is_positive = FALSE) AS useful \n" +
-                "FROM reviews \n" +
-                "WHERE review_id = ?;";
+        String sqlQuery = "SELECT r.*, COALESCE(SUM(rul.is_positive), 0) AS useful \n" +
+                "FROM reviews AS r \n" +
+                "LEFT JOIN review_user_likes AS rul ON r.review_id = rul.REVIEW_ID \n" +
+                "WHERE r.review_id = ? \n" +
+                "GROUP BY r.review_id;";
 
-        List<Review> review = jdbcTemplate.query(sqlQuery, DBReviewStorage::createReview, reviewId, reviewId, reviewId);
+        List<Review> review = jdbcTemplate.query(sqlQuery, DBReviewStorage::createReview, reviewId);
 
         if (review.size() != 1) {
             throw new UpdateNonExistObjectException("Review с указанным id = " + reviewId + " не существует " +

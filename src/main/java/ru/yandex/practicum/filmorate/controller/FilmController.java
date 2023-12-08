@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
 import javax.validation.Valid;
 import java.util.List;
 
@@ -34,8 +35,8 @@ public class FilmController {
 
     @GetMapping("/popular")
     public ResponseEntity<List<Film>> getMostLikedFilms(@RequestParam(defaultValue = "10") int count,
-                                                        @RequestParam(value = "genreId", defaultValue = "0", required = false) int genreId,
-                                                        @RequestParam(value = "year", defaultValue = "0", required = false) int year) {
+                                                        @RequestParam(value = "genreId", defaultValue = "0") int genreId,
+                                                        @RequestParam(value = "year", defaultValue = "0") int year) {
         if (genreId == 0 & year == 0) {
             log.info("Получен GET запрос на получение лучших фильмов");
             return ResponseEntity.ok(filmService.getMostLikedFilms(count));
