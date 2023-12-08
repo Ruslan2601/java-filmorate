@@ -34,8 +34,8 @@ public class FilmController {
 
     @GetMapping("/popular")
     public ResponseEntity<List<Film>> getMostLikedFilms(@RequestParam(defaultValue = "10") int count,
-                                                        @RequestParam(value = "genreId", defaultValue = "0", required = false) int genreId,
-                                                        @RequestParam(value = "year", defaultValue = "0", required = false) int year) {
+                                                        @RequestParam(value = "genreId", defaultValue = "0") int genreId,
+                                                        @RequestParam(value = "year", defaultValue = "0") int year) {
         if (genreId == 0 & year == 0) {
             log.info("Получен GET запрос на получение лучших фильмов");
             return ResponseEntity.ok(filmService.getMostLikedFilms(count));

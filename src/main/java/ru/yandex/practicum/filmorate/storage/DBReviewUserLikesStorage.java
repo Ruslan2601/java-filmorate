@@ -16,13 +16,13 @@ public class DBReviewUserLikesStorage {
     public boolean addLikeToReview(int reviewId, int userId) {
         String sqlQuery = "INSERT INTO review_user_likes (review_id, user_id, is_positive)" +
                 "VALUES (?, ?, ?);";
-        return jdbcTemplate.update(sqlQuery, reviewId, userId, "TRUE") == 1;
+        return jdbcTemplate.update(sqlQuery, reviewId, userId, 1) == 1;
     }
 
     public boolean addDislikeToReview(int reviewId, int userId) {
         String sqlQuery = "INSERT INTO review_user_likes (review_id, user_id, is_positive)" +
                 "VALUES (?, ?, ?);";
-        return jdbcTemplate.update(sqlQuery, reviewId, userId, "FALSE") == 1;
+        return jdbcTemplate.update(sqlQuery, reviewId, userId, -1) == 1;
     }
 
     public boolean deleteReactionFromReview(int reviewId, int userId) {
