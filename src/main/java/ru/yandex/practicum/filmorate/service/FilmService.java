@@ -116,17 +116,9 @@ public class FilmService {
     public Film addFilm(Film film) {
         filmStorage.addFilm(film);
 
-        for (Genre genre : film.getGenres()) {
-            filmGenreStorage.addFilmGenre(film.getId(), genre.getId());
-        }
-
-        for (Director director : film.getDirectors()) {
-            filmDirectorStorage.addFilmDirector(film.getId(), director.getId());
-        }
-
-        for (int likes : film.getUserLikes()) {
-            likesStorage.addLike(likes, film.getId());
-        }
+        filmGenreStorage.addFilmGenre(film.getId(), film.getGenres());
+        filmDirectorStorage.addFilmDirector(film.getId(), film.getDirectors());
+        likesStorage.addLike(film.getId(), film.getUserLikes());
 
         film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
         film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
@@ -139,19 +131,13 @@ public class FilmService {
         filmStorage.updateFilm(film);
 
         filmGenreStorage.deleteFilmGenres(oldFilmVersion.getId());
-        for (Genre genre : film.getGenres()) {
-            filmGenreStorage.addFilmGenre(film.getId(), genre.getId());
-        }
+        filmGenreStorage.addFilmGenre(film.getId(), film.getGenres());
 
         filmDirectorStorage.deleteFilmDirectors(oldFilmVersion.getId());
-        for (Director director : film.getDirectors()) {
-            filmDirectorStorage.addFilmDirector(film.getId(), director.getId());
-        }
+        filmDirectorStorage.addFilmDirector(film.getId(), film.getDirectors());
 
         likesStorage.deleteFilmLikes(oldFilmVersion.getId());
-        for (int likes : film.getUserLikes()) {
-            likesStorage.addLike(likes, film.getId());
-        }
+        likesStorage.addLike(film.getId(), film.getUserLikes());
 
         film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
         film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
@@ -210,10 +196,14 @@ public class FilmService {
     public List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreID, int year) {
         List<Film> filmList = filmStorage.getMostLikedFilmsByGenreAndYear(count, genreID, year);
 
+        Map<Integer, Set<Genre>> filmGenresMap = filmGenreStorage.getFilmGenre(filmList);
+        Map<Integer, Set<Integer>> filmLikesMap = likesStorage.getLikes(filmList);
+        Map<Integer, Set<Director>> filmDirectorsMap = directorStorage.getDirectorByFilm(filmList);
+
         return filmList.stream().peek(film -> {
-            film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
-            film.setUserLikes(likesStorage.getLikes(film.getId()));
-            film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
+            film.setGenres(filmGenresMap.get(film.getId()));
+            film.setUserLikes(filmLikesMap.get(film.getId()));
+            film.setDirectors(filmDirectorsMap.get(film.getId()));
         }).collect(Collectors.toList());
     }
 

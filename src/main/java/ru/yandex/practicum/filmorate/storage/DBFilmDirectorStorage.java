@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.enumerations.SortType;
 import ru.yandex.practicum.filmorate.storage.director.DBDirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.DBFilmStorage;
 
+import java.sql.PreparedStatement;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -18,6 +19,8 @@ import java.util.stream.Collectors;
 @Component("dBFilmDirectorStorage")
 public class DBFilmDirectorStorage {
     private final JdbcTemplate jdbcTemplate;
+    private static final String SQL_INSERT_RELATION_DIRECTOR_AND_FILM = "INSERT INTO film_directors (film_id, director_id) " +
+            "VALUES (?, ?);";
 
     @Autowired
     public DBFilmDirectorStorage(JdbcTemplate jdbcTemplate) {
@@ -56,9 +59,17 @@ public class DBFilmDirectorStorage {
     }
 
     public void addFilmDirector(int filmId, int directorId) {
-        String sqlQuery = "INSERT INTO film_directors (film_id, director_id) " +
-                "VALUES (?, ?);";
-        jdbcTemplate.update(sqlQuery, filmId, directorId);
+        jdbcTemplate.update(SQL_INSERT_RELATION_DIRECTOR_AND_FILM, filmId, directorId);
+    }
+
+    public void addFilmDirector(int filmId, Set<Director> directors) {
+        jdbcTemplate.batchUpdate(SQL_INSERT_RELATION_DIRECTOR_AND_FILM,
+                directors,
+                100,
+                (PreparedStatement ps, Director director) -> {
+                    ps.setInt(1, filmId);
+                    ps.setInt(2, director.getId());
+                });
     }
 
     public void deleteFilmDirector(int filmId, int directorId) {
