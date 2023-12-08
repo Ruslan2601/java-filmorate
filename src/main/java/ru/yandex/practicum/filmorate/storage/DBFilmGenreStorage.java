@@ -3,12 +3,12 @@ package ru.yandex.practicum.filmorate.storage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.genre.DBGenreStorage;
 
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.sql.ResultSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component("dBFilmGenreStorage")
@@ -28,6 +28,26 @@ public class DBFilmGenreStorage {
         return jdbcTemplate.query(sqlQuery, DBGenreStorage::createGenre, filmId).stream()
                 .sorted(Comparator.comparingInt(Genre::getId))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public Map<Integer, Set<Genre>> getFilmGenre(List<Film> films) {
+        String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
+        String sqlQuery = String.format("SELECT fg.film_id, g.genre_id, g.name FROM film_genres AS fg " +
+                "JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                "WHERE fg.film_id in (%s) " +
+                "ORDER BY g.genre_id;", inSql);
+
+        Map<Integer, Set<Genre>> result = films.stream().collect(Collectors.toMap(Film::getId, Film::getGenres));
+
+        jdbcTemplate.query(sqlQuery, result.keySet().toArray(), (ResultSet rs) -> {
+            int filmId = rs.getInt("film_id");
+            Genre genre = new Genre();
+            genre.setId(rs.getInt("genre_id"));
+            genre.setName(rs.getString("name"));
+            result.get(filmId).add(genre);
+        });
+
+        return result;
     }
 
     public void addFilmGenre(int filmId, int genreId) {

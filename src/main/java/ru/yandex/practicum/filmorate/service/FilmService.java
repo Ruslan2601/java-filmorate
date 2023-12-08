@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectEx
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.enumerations.EventType;
 import ru.yandex.practicum.filmorate.model.enumerations.Operation;
 import ru.yandex.practicum.filmorate.storage.DBFilmDirectorStorage;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final MpaStorage mpaStorage;
     private final DirectorStorage directorStorage;
     private final DBFilmGenreStorage filmGenreStorage;
     private final DBFilmDirectorStorage filmDirectorStorage;
@@ -41,7 +39,6 @@ public class FilmService {
                        UserStorage userStorage,
                        EventService eventService) {
         this.filmStorage = filmStorage;
-        this.mpaStorage = mpaStorage;
         this.directorStorage = directorStorage;
         this.filmGenreStorage = filmGenreStorage;
         this.filmDirectorStorage = filmDirectorStorage;
@@ -52,10 +49,8 @@ public class FilmService {
 
     public List<Film> getAllFilms() {
         List<Film> films = new ArrayList<>(filmStorage.getAllFilms().values());
-        Map<Integer, Mpa> mpa = mpaStorage.getAllMpa();
 
         for (Film film : films) {
-            film.setMpa(mpa.get(film.getMpa().getId()));
             film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
             film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
             film.setUserLikes(likesStorage.getLikes(film.getId()));
@@ -128,7 +123,6 @@ public class FilmService {
             likesStorage.addLike(likes, film.getId());
         }
 
-        film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
         film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
         film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
 
@@ -154,7 +148,6 @@ public class FilmService {
             likesStorage.addLike(likes, film.getId());
         }
 
-        film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
         film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
         film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
 
@@ -179,7 +172,6 @@ public class FilmService {
 
     public Film deleteFilm(int filmId) {
         Film film = filmStorage.deleteFilm(filmId);
-        film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
         film.setGenres(filmGenreStorage.getFilmGenre(filmId));
         film.setDirectors(filmDirectorStorage.getFilmDirector(filmId));
         film.setUserLikes(likesStorage.getLikes(filmId));
@@ -214,7 +206,6 @@ public class FilmService {
         List<Film> filmList = filmStorage.getMostLikedFilmsByGenreAndYear(count, genreID, year);
 
         return filmList.stream().peek(film -> {
-            film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
             film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
             film.setUserLikes(likesStorage.getLikes(film.getId()));
             film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
@@ -223,7 +214,6 @@ public class FilmService {
 
     private Film collectFilm(int filmId) {
         Film film = filmStorage.getFilm(filmId);
-        film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
         film.setGenres(filmGenreStorage.getFilmGenre(filmId));
         film.setDirectors(filmDirectorStorage.getFilmDirector(filmId));
         film.setUserLikes(likesStorage.getLikes(filmId));
@@ -234,19 +224,18 @@ public class FilmService {
         userStorage.getUser(userId);
         userStorage.getUser(friendId);
 
-        Set<Integer> filmIds = likesStorage.getLikesFilm(userId);
-        Set<Integer> friendFilmIds = likesStorage.getLikesFilm(friendId);
+        List<Film> films = filmStorage.getCommonFriendFilms(userId, friendId);
 
-        if (filmIds.isEmpty() || friendFilmIds.isEmpty()) {
+        if (films.isEmpty()) {
             return new ArrayList<>();
         }
 
-        return filmIds.stream()
-                .filter(friendFilmIds::contains)
-                .map(filmStorage::getFilm)
-                .peek(film -> film.setMpa(mpaStorage.getMpa(film.getMpa().getId())))
-                .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
-                .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
+        Map<Integer, Set<Genre>> filmGenresMap = filmGenreStorage.getFilmGenre(films);
+        Map<Integer, Set<Integer>> filmLikesMap = likesStorage.getLikes(films);
+
+        return films.stream()
+                .peek(film -> film.setGenres(filmGenresMap.get(film.getId())))
+                .peek(film -> film.setUserLikes(filmLikesMap.get(film.getId())))
                 .sorted((f1, f2) -> f2.getUserLikes().size() - f1.getUserLikes().size())
                 .collect(Collectors.toList());
     }
@@ -255,7 +244,6 @@ public class FilmService {
         boolean isDirector = by.contains("director");
         boolean isTitle = by.contains("title");
         return filmStorage.searchFilm(query, isDirector, isTitle).stream()
-                .peek(film -> film.setMpa(mpaStorage.getMpa(film.getMpa().getId())))
                 .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
                 .peek(film -> film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId())))
                 .collect(Collectors.toList());

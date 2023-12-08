@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.storage.DBFilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.DBFriendsStorage;
 import ru.yandex.practicum.filmorate.storage.DBLikesStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
@@ -25,7 +24,6 @@ public class UserService {
     private final DBFriendsStorage friendsStorage;
     private final DBLikesStorage likesStorage;
     private final FilmStorage filmStorage;
-    private final MpaStorage mpaStorage;
     private final DBFilmGenreStorage filmGenreStorage;
     private final EventService eventService;
 
@@ -35,13 +33,11 @@ public class UserService {
                        DBFriendsStorage friendsStorage,
                        DBLikesStorage likesStorage,
                        EventService eventService,
-                       MpaStorage mpaStorage,
                        DBFilmGenreStorage filmGenreStorage) {
         this.userStorage = userStorage;
         this.friendsStorage = friendsStorage;
         this.likesStorage = likesStorage;
         this.filmStorage = filmStorage;
-        this.mpaStorage = mpaStorage;
         this.filmGenreStorage = filmGenreStorage;
         this.eventService = eventService;
     }
@@ -174,7 +170,6 @@ public class UserService {
                 .filter(id -> !userList.contains(id))
                 .map(id -> {
                     Film film = filmStorage.getFilm(id);
-                    film.setMpa(mpaStorage.getMpa(film.getMpa().getId()));
                     film.setGenres(filmGenreStorage.getFilmGenre(id));
                     film.setUserLikes(likesStorage.getLikes(id));
                     return film;
