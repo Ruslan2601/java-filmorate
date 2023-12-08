@@ -34,11 +34,23 @@ public class DBFilmDirectorStorage {
     }
 
     public List<Film> getDirectorFilms(int directorId, SortType sort) {
-        String sqlQuery = "SELECT *,m.name AS mpa_name FROM films AS f JOIN mpa m ON f.mpa_id = m.mpa_id JOIN film_directors fd ON f.film_id = fd.film_id WHERE fd.director_id = ? ORDER BY EXTRACT(YEAR FROM f.release_date) ASC;";
+        String sqlQuery = "";
+        String sqlQueryOrderYear = "SELECT *,m.name AS mpa_name FROM films AS f " +
+                "JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                "JOIN film_directors fd ON f.film_id = fd.film_id " +
+                "WHERE fd.director_id = ? " +
+                "ORDER BY EXTRACT(YEAR FROM f.release_date) ASC;";
+        String sqlQueryOrderLikes = "SELECT f.*, m.name AS mpa_name, COUNT(l.user_id) AS total_likes FROM films f JOIN film_directors fd " +
+                "ON fd.film_id = f.film_id JOIN directors d ON d.director_id = fd.director_id LEFT JOIN  likes l " +
+                "ON l.film_id = f.film_id JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                "WHERE d.director_id = ? " +
+                "GROUP BY f.film_id, d.director_id " +
+                "ORDER BY total_likes DESC;";
+
         if (sort.equals(SortType.LIKES)) {
-            sqlQuery = "SELECT f.*, m.name AS mpa_name, COUNT(l.user_id) AS total_likes FROM films f JOIN film_directors fd " +
-                    "ON fd.film_id = f.film_id JOIN directors d ON d.director_id = fd.director_id LEFT JOIN  likes l " +
-                    "ON l.film_id = f.film_id JOIN mpa m ON f.mpa_id = m.mpa_id WHERE d.director_id = ? GROUP BY f.film_id, d.director_id ORDER BY total_likes DESC;";
+            sqlQuery = sqlQueryOrderLikes;
+        } else {
+            sqlQuery = sqlQueryOrderYear;
         }
         return jdbcTemplate.query(sqlQuery, DBFilmStorage::createFilm, directorId);
     }

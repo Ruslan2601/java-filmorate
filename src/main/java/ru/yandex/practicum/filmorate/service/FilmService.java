@@ -16,7 +16,10 @@ import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,13 +52,15 @@ public class FilmService {
     public List<Film> getAllFilms() {
         List<Film> films = new ArrayList<>(filmStorage.getAllFilms().values());
 
-        for (Film film : films) {
-            film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
-            film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
-            film.setUserLikes(likesStorage.getLikes(film.getId()));
-        }
+        Map<Integer, Set<Genre>> filmGenresMap = filmGenreStorage.getFilmGenre(films);
+        Map<Integer, Set<Integer>> filmLikesMap = likesStorage.getLikes(films);
+        Map<Integer, Set<Director>> filmDirectorsMap = directorStorage.getDirectorByFilm(films);
 
-        return films;
+        return films.stream()
+                .peek(film -> film.setGenres(filmGenresMap.get(film.getId())))
+                .peek(film -> film.setUserLikes(filmLikesMap.get(film.getId())))
+                .peek(film -> film.setDirectors(filmDirectorsMap.get(film.getId())))
+                .collect(Collectors.toList());
     }
 
     public Film getFilm(int filmId) {
@@ -95,14 +100,16 @@ public class FilmService {
 
     public List<Film> getDirectorFilms(int directorId, SortType sortBy) {
         directorStorage.checkContainsDirector(directorId);
-        List<Film> films = filmDirectorStorage.getDirectorFilms(directorId, SortType.YEAR);
-        if (sortBy.equals(SortType.LIKES)) {
-            films = filmDirectorStorage.getDirectorFilms(directorId, SortType.LIKES);
-        }
+        List<Film> films = filmDirectorStorage.getDirectorFilms(directorId, sortBy);
+
+        Map<Integer, Set<Genre>> filmGenresMap = filmGenreStorage.getFilmGenre(films);
+        Map<Integer, Set<Integer>> filmLikesMap = likesStorage.getLikes(films);
+        Map<Integer, Set<Director>> filmDirectorsMap = directorStorage.getDirectorByFilm(films);
+
         return films.stream()
-                .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
-                .peek(film -> film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId())))
-                .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
+                .peek(film -> film.setGenres(filmGenresMap.get(film.getId())))
+                .peek(film -> film.setDirectors(filmDirectorsMap.get(film.getId())))
+                .peek(film -> film.setUserLikes(filmLikesMap.get(film.getId())))
                 .collect(Collectors.toList());
     }
 
