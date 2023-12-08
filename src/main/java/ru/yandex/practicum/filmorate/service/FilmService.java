@@ -16,10 +16,7 @@ import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,9 +54,13 @@ public class FilmService {
         Map<Integer, Set<Director>> filmDirectorsMap = directorStorage.getDirectorByFilm(films);
 
         return films.stream()
-                .peek(film -> film.setGenres(filmGenresMap.get(film.getId())))
-                .peek(film -> film.setUserLikes(filmLikesMap.get(film.getId())))
-                .peek(film -> film.setDirectors(filmDirectorsMap.get(film.getId())))
+                .peek(film -> {
+                    film.setGenres(filmGenresMap.get(film.getId()).stream()
+                            .sorted(Comparator.comparingInt(Genre::getId))
+                            .collect(Collectors.toCollection(LinkedHashSet::new)));
+                    film.setUserLikes(filmLikesMap.get(film.getId()));
+                    film.setDirectors(filmDirectorsMap.get(film.getId()));
+                })
                 .collect(Collectors.toList());
     }
 
@@ -107,9 +108,13 @@ public class FilmService {
         Map<Integer, Set<Director>> filmDirectorsMap = directorStorage.getDirectorByFilm(films);
 
         return films.stream()
-                .peek(film -> film.setGenres(filmGenresMap.get(film.getId())))
-                .peek(film -> film.setDirectors(filmDirectorsMap.get(film.getId())))
-                .peek(film -> film.setUserLikes(filmLikesMap.get(film.getId())))
+                .peek(film -> {
+                    film.setGenres(filmGenresMap.get(film.getId()).stream()
+                            .sorted(Comparator.comparingInt(Genre::getId))
+                            .collect(Collectors.toCollection(LinkedHashSet::new)));
+                    film.setDirectors(filmDirectorsMap.get(film.getId()));
+                    film.setUserLikes(filmLikesMap.get(film.getId()));
+                })
                 .collect(Collectors.toList());
     }
 
@@ -201,7 +206,9 @@ public class FilmService {
         Map<Integer, Set<Director>> filmDirectorsMap = directorStorage.getDirectorByFilm(filmList);
 
         return filmList.stream().peek(film -> {
-            film.setGenres(filmGenresMap.get(film.getId()));
+            film.setGenres(filmGenresMap.get(film.getId()).stream()
+                    .sorted(Comparator.comparingInt(Genre::getId))
+                    .collect(Collectors.toCollection(LinkedHashSet::new)));
             film.setUserLikes(filmLikesMap.get(film.getId()));
             film.setDirectors(filmDirectorsMap.get(film.getId()));
         }).collect(Collectors.toList());
@@ -229,8 +236,10 @@ public class FilmService {
         Map<Integer, Set<Integer>> filmLikesMap = likesStorage.getLikes(films);
 
         return films.stream()
-                .peek(film -> film.setGenres(filmGenresMap.get(film.getId())))
-                .peek(film -> film.setUserLikes(filmLikesMap.get(film.getId())))
+                .peek(film -> {
+                    film.setGenres(filmGenresMap.get(film.getId()));
+                    film.setUserLikes(filmLikesMap.get(film.getId()));
+                })
                 .sorted((f1, f2) -> f2.getUserLikes().size() - f1.getUserLikes().size())
                 .collect(Collectors.toList());
     }

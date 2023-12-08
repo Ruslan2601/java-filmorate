@@ -176,7 +176,9 @@ public class UserService {
 
         return recommendationFilms.stream()
                 .peek(film -> {
-                    film.setGenres(filmGenresMap.get(film.getId()));
+                    film.setGenres(filmGenresMap.get(film.getId()).stream()
+                            .sorted(Comparator.comparingInt(Genre::getId))
+                            .collect(Collectors.toCollection(LinkedHashSet::new)));
                     film.setUserLikes(filmLikesMap.get(film.getId()));
                 }).collect(Collectors.toList());
     }
