@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final MpaStorage mpaStorage;
     private final DirectorStorage directorStorage;
     private final DBFilmGenreStorage filmGenreStorage;
     private final DBFilmDirectorStorage filmDirectorStorage;
@@ -40,7 +39,6 @@ public class FilmService {
                        UserStorage userStorage,
                        EventService eventService) {
         this.filmStorage = filmStorage;
-        this.mpaStorage = mpaStorage;
         this.directorStorage = directorStorage;
         this.filmGenreStorage = filmGenreStorage;
         this.filmDirectorStorage = filmDirectorStorage;
