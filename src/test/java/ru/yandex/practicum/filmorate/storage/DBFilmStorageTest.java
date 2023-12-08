@@ -55,13 +55,11 @@ public class DBFilmStorageTest {
                 1,
                 1,
                 100,
-                new Mpa(1, ""));
+                new Mpa(1, "G"));
     }
 
     public Film standardGetFilm() {
         Film film = standardFilm();
-        film.setGenres(null);
-        film.setUserLikes(null);
         film.setDirectors(null);
         return film;
     }
@@ -122,8 +120,6 @@ public class DBFilmStorageTest {
                 "Новый фильм неправильно добавляется");
 
         film.setId(21);
-        film.setGenres(null);
-        film.setUserLikes(null);
         film.setDirectors(null);
 
         Assertions.assertEquals(film, filmStorage.getFilm(21),
