@@ -11,6 +11,8 @@ public interface FilmStorage {
 
     Film getFilm(int filmId);
 
+    List<Film> getFilm(List<Integer> filmIds);
+
     Film addFilm(Film film);
 
     Film updateFilm(Film film);

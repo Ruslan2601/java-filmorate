@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.exceptions.AddExistObjectExceptio
 import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -40,6 +41,15 @@ public class DBFilmStorage implements FilmStorage {
     @Override
     public Film getFilm(int filmId) {
         return checkContainsFilm(filmId);
+    }
+
+    @Override
+    public List<Film> getFilm(List<Integer> filmIds) {
+        String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        String sqlQuery = String.format("SELECT *, m.name mpa_name FROM films f " +
+                "JOIN mpa m ON m.mpa_id = f.mpa_id WHERE film_id in (%s);", inSql);
+
+        return jdbcTemplate.query(sqlQuery, DBFilmStorage::createFilm, filmIds.toArray());
     }
 
     @Override
@@ -229,7 +239,7 @@ public class DBFilmStorage implements FilmStorage {
         String sqlQuery = "SELECT *, m.name mpa_name FROM films f JOIN mpa m ON m.mpa_id = f.mpa_id WHERE film_id = ?;";
         List<Film> film = jdbcTemplate.query(sqlQuery, DBFilmStorage::createFilm, filmId);
 
-        if (film.size() > 0) {
+        if (!film.isEmpty()) {
             throw new AddExistObjectException("Film с указанным id = " + filmId + " уже существует");
         }
     }

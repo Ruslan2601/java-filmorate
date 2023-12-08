@@ -8,12 +8,13 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.exceptions.AddExistObjectException;
 import ru.yandex.practicum.filmorate.exception.exceptions.UpdateNonExistObjectException;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component("dBDirectorStorage")
 public class DBDirectorStorage implements DirectorStorage {
@@ -34,6 +35,29 @@ public class DBDirectorStorage implements DirectorStorage {
     @Override
     public Director getDirector(int directorID) {
         return checkContainsDirector(directorID);
+    }
+
+    @Override
+    public Map<Integer, Set<Director>> getDirectorByFilm(List<Film> films) {
+        String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
+        String sqlQuery = String.format("SELECT f.film_id, d.* " +
+                "FROM films f " +
+                "JOIN film_directors fd ON f.film_id = fd.film_id " +
+                "JOIN directors d ON fd.director_id = d.director_id " +
+                "WHERE f.film_id IN (%s);", inSql);
+
+        Map<Integer, Set<Director>> result = films.stream().collect(Collectors.toMap(Film::getId, Film::getDirectors));
+
+        jdbcTemplate.query(sqlQuery, result.keySet().toArray(), (ResultSet rs) -> {
+            int filmId = rs.getInt("film_id");
+            Director director = Director.builder()
+                    .id(rs.getInt("director_id"))
+                    .name(rs.getString("name"))
+                    .build();
+            result.get(filmId).add(director);
+        });
+
+        return result;
     }
 
     @Override
@@ -85,7 +109,7 @@ public class DBDirectorStorage implements DirectorStorage {
         String sqlQuery = "SELECT * FROM directors WHERE director_id = ?;";
         List<Director> director = jdbcTemplate.query(sqlQuery, DBDirectorStorage::createDirector, directorId);
 
-        if (director.size() > 0) {
+        if (!director.isEmpty()) {
             throw new AddExistObjectException("Director с указанным id = " + directorId + " уже существует");
         }
     }
@@ -102,9 +126,9 @@ public class DBDirectorStorage implements DirectorStorage {
     }
 
     public static Director createDirector(ResultSet resultSet, int rowNum) throws SQLException {
-        Director director = new Director();
-        director.setId(resultSet.getInt("director_id"));
-        director.setName(resultSet.getString("name"));
-        return director;
+        return Director.builder()
+                .id(resultSet.getInt("director_id"))
+                .name(resultSet.getString("name"))
+                .build();
     }
 }

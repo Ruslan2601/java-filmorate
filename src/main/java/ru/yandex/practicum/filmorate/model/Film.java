@@ -31,5 +31,5 @@ public class Film {
     @CorrectGenresId
     private Set<Genre> genres = new HashSet<>();
     private Set<Integer> userLikes = new HashSet<>();
-    private Set<Director> directors;
+    private Set<Director> directors = new HashSet<>();
 }

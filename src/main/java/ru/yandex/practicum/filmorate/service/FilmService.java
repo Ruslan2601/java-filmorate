@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.enumerations.EventType;
 import ru.yandex.practicum.filmorate.model.enumerations.Operation;
+import ru.yandex.practicum.filmorate.model.enumerations.SortType;
 import ru.yandex.practicum.filmorate.storage.DBFilmDirectorStorage;
 import ru.yandex.practicum.filmorate.storage.DBFilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.DBLikesStorage;
@@ -48,13 +49,19 @@ public class FilmService {
     public List<Film> getAllFilms() {
         List<Film> films = new ArrayList<>(filmStorage.getAllFilms().values());
 
-        for (Film film : films) {
-            film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
-            film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
-            film.setUserLikes(likesStorage.getLikes(film.getId()));
-        }
+        Map<Integer, Set<Genre>> filmGenresMap = filmGenreStorage.getFilmGenre(films);
+        Map<Integer, Set<Integer>> filmLikesMap = likesStorage.getLikes(films);
+        Map<Integer, Set<Director>> filmDirectorsMap = directorStorage.getDirectorByFilm(films);
 
-        return films;
+        return films.stream()
+                .peek(film -> {
+                    film.setGenres(filmGenresMap.get(film.getId()).stream()
+                            .sorted(Comparator.comparingInt(Genre::getId))
+                            .collect(Collectors.toCollection(LinkedHashSet::new)));
+                    film.setUserLikes(filmLikesMap.get(film.getId()));
+                    film.setDirectors(filmDirectorsMap.get(film.getId()));
+                })
+                .collect(Collectors.toList());
     }
 
     public Film getFilm(int filmId) {
@@ -92,33 +99,31 @@ public class FilmService {
         return mostLikedFilms;
     }
 
-    public List<Film> getDirectorFilms(int directorId, String sortBy) {
+    public List<Film> getDirectorFilms(int directorId, SortType sortBy) {
         directorStorage.checkContainsDirector(directorId);
-        List<Film> films = filmDirectorStorage.getDirectorFilms(directorId, "year");
-        if (sortBy.equals("likes")) {
-            films = filmDirectorStorage.getDirectorFilms(directorId, "likes");
-        }
+        List<Film> films = filmDirectorStorage.getDirectorFilms(directorId, sortBy);
+
+        Map<Integer, Set<Genre>> filmGenresMap = filmGenreStorage.getFilmGenre(films);
+        Map<Integer, Set<Integer>> filmLikesMap = likesStorage.getLikes(films);
+        Map<Integer, Set<Director>> filmDirectorsMap = directorStorage.getDirectorByFilm(films);
+
         return films.stream()
-                .peek(film -> film.setGenres(filmGenreStorage.getFilmGenre(film.getId())))
-                .peek(film -> film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId())))
-                .peek(film -> film.setUserLikes(likesStorage.getLikes(film.getId())))
+                .peek(film -> {
+                    film.setGenres(filmGenresMap.get(film.getId()).stream()
+                            .sorted(Comparator.comparingInt(Genre::getId))
+                            .collect(Collectors.toCollection(LinkedHashSet::new)));
+                    film.setDirectors(filmDirectorsMap.get(film.getId()));
+                    film.setUserLikes(filmLikesMap.get(film.getId()));
+                })
                 .collect(Collectors.toList());
     }
 
     public Film addFilm(Film film) {
         filmStorage.addFilm(film);
 
-        for (Genre genre : film.getGenres()) {
-            filmGenreStorage.addFilmGenre(film.getId(), genre.getId());
-        }
-
-        for (Director director : film.getDirectors()) {
-            filmDirectorStorage.addFilmDirector(film.getId(), director.getId());
-        }
-
-        for (int likes : film.getUserLikes()) {
-            likesStorage.addLike(likes, film.getId());
-        }
+        filmGenreStorage.addFilmGenre(film.getId(), film.getGenres());
+        filmDirectorStorage.addFilmDirector(film.getId(), film.getDirectors());
+        likesStorage.addLike(film.getId(), film.getUserLikes());
 
         film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
         film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
@@ -131,19 +136,13 @@ public class FilmService {
         filmStorage.updateFilm(film);
 
         filmGenreStorage.deleteFilmGenres(oldFilmVersion.getId());
-        for (Genre genre : film.getGenres()) {
-            filmGenreStorage.addFilmGenre(film.getId(), genre.getId());
-        }
+        filmGenreStorage.addFilmGenre(film.getId(), film.getGenres());
 
         filmDirectorStorage.deleteFilmDirectors(oldFilmVersion.getId());
-        for (Director director : film.getDirectors()) {
-            filmDirectorStorage.addFilmDirector(film.getId(), director.getId());
-        }
+        filmDirectorStorage.addFilmDirector(film.getId(), film.getDirectors());
 
         likesStorage.deleteFilmLikes(oldFilmVersion.getId());
-        for (int likes : film.getUserLikes()) {
-            likesStorage.addLike(likes, film.getId());
-        }
+        likesStorage.addLike(film.getId(), film.getUserLikes());
 
         film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
         film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
@@ -202,10 +201,16 @@ public class FilmService {
     public List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreID, int year) {
         List<Film> filmList = filmStorage.getMostLikedFilmsByGenreAndYear(count, genreID, year);
 
+        Map<Integer, Set<Genre>> filmGenresMap = filmGenreStorage.getFilmGenre(filmList);
+        Map<Integer, Set<Integer>> filmLikesMap = likesStorage.getLikes(filmList);
+        Map<Integer, Set<Director>> filmDirectorsMap = directorStorage.getDirectorByFilm(filmList);
+
         return filmList.stream().peek(film -> {
-            film.setGenres(filmGenreStorage.getFilmGenre(film.getId()));
-            film.setUserLikes(likesStorage.getLikes(film.getId()));
-            film.setDirectors(filmDirectorStorage.getFilmDirector(film.getId()));
+            film.setGenres(filmGenresMap.get(film.getId()).stream()
+                    .sorted(Comparator.comparingInt(Genre::getId))
+                    .collect(Collectors.toCollection(LinkedHashSet::new)));
+            film.setUserLikes(filmLikesMap.get(film.getId()));
+            film.setDirectors(filmDirectorsMap.get(film.getId()));
         }).collect(Collectors.toList());
     }
 
@@ -231,8 +236,10 @@ public class FilmService {
         Map<Integer, Set<Integer>> filmLikesMap = likesStorage.getLikes(films);
 
         return films.stream()
-                .peek(film -> film.setGenres(filmGenresMap.get(film.getId())))
-                .peek(film -> film.setUserLikes(filmLikesMap.get(film.getId())))
+                .peek(film -> {
+                    film.setGenres(filmGenresMap.get(film.getId()));
+                    film.setUserLikes(filmLikesMap.get(film.getId()));
+                })
                 .sorted((f1, f2) -> f2.getUserLikes().size() - f1.getUserLikes().size())
                 .collect(Collectors.toList());
     }

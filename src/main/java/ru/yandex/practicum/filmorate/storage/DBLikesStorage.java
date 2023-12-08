@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,6 +14,8 @@ import java.util.stream.Collectors;
 public class DBLikesStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private static final String SQL_INSERT_LIKES = "INSERT INTO likes (user_id, film_id) " +
+            "VALUES (?, ?);";
 
     @Autowired
     public DBLikesStorage(JdbcTemplate jdbcTemplate) {
@@ -41,9 +44,17 @@ public class DBLikesStorage {
     }
 
     public void addLike(int userId, int filmId) {
-        String sqlQuery = "INSERT INTO likes (user_id, film_id) " +
-                "VALUES (?, ?);";
-        jdbcTemplate.update(sqlQuery, userId, filmId);
+        jdbcTemplate.update(SQL_INSERT_LIKES, userId, filmId);
+    }
+
+    public void addLike(int filmId, Set<Integer> likeUsers) {
+        jdbcTemplate.batchUpdate(SQL_INSERT_LIKES,
+                likeUsers,
+                100,
+                (PreparedStatement ps, Integer userId) -> {
+                    ps.setInt(1, userId);
+                    ps.setInt(2, filmId);
+                });
     }
 
     public void deleteLike(int userId, int filmId) {

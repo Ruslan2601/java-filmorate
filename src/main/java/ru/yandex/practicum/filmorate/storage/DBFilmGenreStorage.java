@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.genre.DBGenreStorage;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
 public class DBFilmGenreStorage {
 
     private final JdbcTemplate jdbcTemplate;
+
+    private static final String SQL_INSERT_RELATION_GENRE_AND_FILM = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?);";
 
     @Autowired
     public DBFilmGenreStorage(JdbcTemplate jdbcTemplate) {
@@ -51,9 +54,17 @@ public class DBFilmGenreStorage {
     }
 
     public void addFilmGenre(int filmId, int genreId) {
-        String sqlQuery = "INSERT INTO film_genres (film_id, genre_id) " +
-                "VALUES (?, ?);";
-        jdbcTemplate.update(sqlQuery, filmId, genreId);
+        jdbcTemplate.update(SQL_INSERT_RELATION_GENRE_AND_FILM, filmId, genreId);
+    }
+
+    public void addFilmGenre(int filmId, Set<Genre> genres) {
+        jdbcTemplate.batchUpdate(SQL_INSERT_RELATION_GENRE_AND_FILM,
+                genres,
+                100,
+                (PreparedStatement ps, Genre genre) -> {
+                    ps.setInt(1, filmId);
+                    ps.setInt(2, genre.getId());
+                });
     }
 
     public void deleteFilmGenre(int filmId, int genreId) {
