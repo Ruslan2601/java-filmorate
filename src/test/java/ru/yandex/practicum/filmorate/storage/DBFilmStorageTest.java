@@ -55,7 +55,7 @@ public class DBFilmStorageTest {
                 1,
                 1,
                 100,
-                new Mpa(1, ""));
+                new Mpa(1, "G"));
     }
 
     public Film standardGetFilm() {

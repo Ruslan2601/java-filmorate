@@ -235,7 +235,7 @@ public class DBFilmStorage implements FilmStorage {
     }
 
     private Film checkContainsFilm(int filmId) {
-        String sqlQuery = "SELECT *, '' mpa_name FROM films WHERE film_id = ?;";
+        String sqlQuery = "SELECT *, m.name mpa_name FROM films f JOIN mpa m ON m.mpa_id = f.mpa_id WHERE film_id = ?;";
         List<Film> film = jdbcTemplate.query(sqlQuery, DBFilmStorage::createFilm, filmId);
 
         if (film.size() != 1) {
