@@ -5,7 +5,6 @@ import ru.yandex.practicum.filmorate.validation.NotZero;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 
 @Data
 public class Review {
