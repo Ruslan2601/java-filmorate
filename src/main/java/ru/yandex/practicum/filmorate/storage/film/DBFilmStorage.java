@@ -108,7 +108,7 @@ public class DBFilmStorage implements FilmStorage {
     public List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreID, int year) {
         String sqlYear = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.name mpa_name " +
                 "FROM films f " +
-                "JOIN mpa m ON m.mpa_id = f.mpa_id" +
+                "JOIN mpa m ON m.mpa_id = f.mpa_id " +
                 "LEFT JOIN likes l on f.film_id = l.film_id " +
                 "WHERE Extract(year from cast(f.release_date as date)) = ?" +
                 "GROUP BY f.film_id " +
@@ -116,7 +116,7 @@ public class DBFilmStorage implements FilmStorage {
                 "limit ?;";
         String sqlGenre = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.name mpa_name " +
                 "FROM films f " +
-                "JOIN mpa m ON m.mpa_id = f.mpa_id" +
+                "JOIN mpa m ON m.mpa_id = f.mpa_id " +
                 "LEFT JOIN likes l on f.film_id = l.film_id " +
                 "JOIN film_genres fg on f.film_id = fg.film_id " +
                 "WHERE fg.genre_id = ?" +
@@ -126,7 +126,7 @@ public class DBFilmStorage implements FilmStorage {
         String sqlYearAndGenre = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.name mpa_name " +
                 "FROM films f " +
                 "LEFT JOIN likes l on f.film_id = l.film_id " +
-                "JOIN mpa m ON m.mpa_id = f.mpa_id" +
+                "JOIN mpa m ON m.mpa_id = f.mpa_id " +
                 "JOIN film_genres fg on f.film_id = fg.film_id " +
                 "WHERE fg.genre_id = ? and Extract(year from cast(f.release_date as date)) = ?" +
                 "GROUP BY f.film_id " +
@@ -150,7 +150,7 @@ public class DBFilmStorage implements FilmStorage {
         String sqlDirectorsTittle = "SELECT f.film_id, f.name, f.description, f.release_date, m.name mpa_name, " +
                 "f.duration, f.mpa_id, COUNT(l.user_id) AS likes_count \n" +
                 "FROM films AS f " +
-                "JOIN mpa m ON m.mpa_id = f.mpa_id" +
+                "JOIN mpa m ON m.mpa_id = f.mpa_id " +
                 "LEFT JOIN film_directors AS fd ON f.film_id = fd.film_id " +
                 "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
                 "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
@@ -160,7 +160,7 @@ public class DBFilmStorage implements FilmStorage {
         String sqlTittle = "SELECT f.film_id, f.name, f.description, f.release_date, m.name mpa_name, " +
                 "f.duration, f.mpa_id, COUNT(l.user_id) AS likes_count \n" +
                 "FROM films AS f " +
-                "JOIN mpa m ON m.mpa_id = f.mpa_id" +
+                "JOIN mpa m ON m.mpa_id = f.mpa_id " +
                 "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
                 "WHERE UPPER(f.name) LIKE UPPER('%" + query + "%') " +
                 "GROUP BY f.film_id " +
@@ -168,7 +168,7 @@ public class DBFilmStorage implements FilmStorage {
         String sqlDirectors = "SELECT f.film_id, f.name, f.description, f.release_date, m.name mpa_name, " +
                 "f.duration, f.mpa_id, COUNT(l.user_id) AS likes_count \n" +
                 "FROM films AS f " +
-                "JOIN mpa m ON m.mpa_id = f.mpa_id" +
+                "JOIN mpa m ON m.mpa_id = f.mpa_id " +
                 "LEFT JOIN film_directors AS fd ON f.film_id = fd.film_id " +
                 "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
                 "LEFT JOIN likes AS l ON f.film_id = l.film_id " +

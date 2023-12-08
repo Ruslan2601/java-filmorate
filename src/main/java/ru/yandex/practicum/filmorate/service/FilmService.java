@@ -106,7 +106,7 @@ public class FilmService {
             Collection<Film> films = filmDirectorStorage.getDirectorFilms(directorId);
             return films.stream()
                     .sorted((f1, f2) -> {
-                        if (f2.getUserLikes() != null && f1.getUserLikes() != null) {
+                        if (!f2.getUserLikes().isEmpty() && !f1.getUserLikes().isEmpty()) {
                             return f1.getUserLikes().size() - f2.getUserLikes().size();
                         }
 
